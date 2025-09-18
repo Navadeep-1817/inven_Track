@@ -1,0 +1,143 @@
+/* General Component Styling */
+.staff-management-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Headings */
+h2 {
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 600;
+  border-bottom: 3px solid #e0e6ec;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+h3 {
+  color: #34495e;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+/* Section Containers */
+.branch-selector,
+.staff-list-section {
+  padding: 20px;
+  border: 1px solid #e0e6ec;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  background-color: #fcfdfe;
+}
+
+/* Branch Selector Styles */
+.branch-selector {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.branch-selector label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.branch-selector select {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #cdd1d4;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #fff;
+  cursor: pointer;
+  appearance: none; /* Removes default dropdown arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+}
+
+/* Staff List Styles */
+.staff-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.staff-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e6ec;
+  transition: background-color 0.2s ease;
+}
+
+.staff-item:last-child {
+  border-bottom: none;
+}
+
+.staff-item:hover {
+  background-color: #f7f9fa;
+}
+
+.staff-item span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.staff-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Buttons */
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  background-color: #007bff;
+  transition: background-color 0.3s ease;
+}
+
+
+button.remove-button {
+  background-color: #dc3545;
+}
+
+button.remove-button:hover {
+  background-color: #c82333;
+}
+
+/* Messages */
+p {
+  color: #777;
+}
+
+.error {
+  color: #dc3545;
+  background-color: #fcebeb;
+  border: 1px solid #f5c6cb;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
