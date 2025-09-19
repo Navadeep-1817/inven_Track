@@ -1,5 +1,6 @@
 const User = require('../models/User');
 
+
 // Get all staff for a specific branch
 const getStaffByBranchId = async (req, res) => {
     try {
