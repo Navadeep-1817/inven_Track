@@ -4,59 +4,62 @@ import './../styles/Staff.css';
 
 const Staff = () => {
     const [branches, setBranches] = useState([]);
-    const [staffList, setStaffList] = useState([]);
+    const [selectedBranch, setSelectedBranch] = useState(null); // To hold the selected branch object
+    const [currentStaff, setCurrentStaff] = useState([]); // To hold staff of the selected branch
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Fetch all branches and their staff
+    // Fetch all branches on initial component mount
     useEffect(() => {
-        const fetchBranchesAndStaff = async () => {
+        const fetchBranches = async () => {
             setLoading(true);
             try {
-                // Fetch all branches
-                const branchesResponse = await axios.get('http://localhost:5000/api/branches');
-                const branchesData = branchesResponse.data;
-                setBranches(branchesData);
-
-                // Fetch staff for each branch
-                const staffPromises = branchesData.map(branch =>
-                    axios.get(`http://localhost:5000/api/staff/branches/${branch.branch_id}/staff`)
-                );
-                
-                const staffResponses = await Promise.all(staffPromises);
-                const staffByBranch = staffResponses.map(response => response.data);
-                
-                // Combine branches with their staff
-                const staffListWithBranches = branchesData.map((branch, index) => ({
-                    ...branch,
-                    staff: staffByBranch[index]
-                }));
-                
-                setStaffList(staffListWithBranches);
+                const response = await axios.get('http://localhost:5000/api/branches');
+                setBranches(response.data);
                 setError(null);
             } catch (err) {
-                setError('Failed to fetch data.');
+                setError('Failed to fetch branches.');
+                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchBranchesAndStaff();
+        fetchBranches();
     }, []);
 
+    // Function to handle selecting a branch and fetching its staff
+    const handleSelectBranch = async (branch) => {
+        setSelectedBranch(branch);
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:5000/api/staff/branches/${branch.branch_id}/staff`);
+            setCurrentStaff(response.data);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch staff for this branch.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Function to go back to the branch list view
+    const handleBackToBranches = () => {
+        setSelectedBranch(null);
+        setCurrentStaff([]);
+    };
+    
     // Handle staff removal
     const handleRemoveStaff = async (staffId, staffName) => {
         if (window.confirm(`Are you sure you want to remove ${staffName}?`)) {
             try {
                 await axios.delete(`http://localhost:5000/api/staff/staff/${staffId}`);
-                // Refresh the data to reflect the change
-                const updatedList = staffList.map(branch => ({
-                    ...branch,
-                    staff: branch.staff.filter(staff => staff._id !== staffId)
-                }));
-                setStaffList(updatedList);
+                // Update state locally without re-fetching
+                setCurrentStaff(prevStaff => prevStaff.filter(s => s._id !== staffId));
                 alert(`${staffName} has been removed.`);
             } catch (err) {
                 setError('Failed to remove staff.');
+                console.error(err);
             }
         }
     };
@@ -64,51 +67,88 @@ const Staff = () => {
     // Handle staff role change (manager/staff)
     const handleChangeRole = async (staffId, currentRole) => {
         const newRole = currentRole === 'Manager' ? 'Staff' : 'Manager';
+
+        // Check if promoting to manager while one already exists
+        if (newRole === 'Manager' && currentStaff.some(s => s.role === 'Manager')) {
+            alert('A manager already exists for this branch. Please demote the current manager first.');
+            return; // Stop the function
+        }
+
         if (window.confirm(`Are you sure you want to change this person's role to ${newRole}?`)) {
             try {
                 const response = await axios.patch(`http://localhost:5000/api/staff/staff/${staffId}`, { role: newRole });
-                // Refresh the data to reflect the change
-                const updatedList = staffList.map(branch => ({
-                    ...branch,
-                    staff: branch.staff.map(staff => staff._id === staffId ? response.data : staff)
-                }));
-                setStaffList(updatedList);
+                // Update state locally for an instant UI update
+                setCurrentStaff(prevStaff => 
+                    prevStaff.map(s => (s._id === staffId ? response.data : s))
+                );
             } catch (err) {
                 setError('Failed to change role.');
+                console.error(err);
             }
         }
     };
 
+    // Determine if a manager exists for the current branch
+    const hasManager = currentStaff.some(staff => staff.role === 'Manager');
+
     return (
         <div className="staff-management-container">
             <h2>Staff Management</h2>
-            {loading && <p>Loading...</p>}
             {error && <p className="error">{error}</p>}
 
-            {staffList.map(branch => (
-                <div key={branch.branch_id} className="branch-staff-section">
-                    <h3>{branch.branch_name} (ID: {branch.branch_id})</h3>
-                    {branch.staff.length > 0 ? (
+            {/* Conditional Rendering: Show branch list or staff list */}
+            {!selectedBranch ? (
+                // VIEW 1: Branch List
+                <div className="branch-view">
+                    <h3>All Branches</h3>
+                    {loading ? <p className="loading">Loading Branches...</p> : (
+                        <ul className="branch-list">
+                            {branches.map(branch => (
+                                <li key={branch.branch_id} className="branch-item">
+                                    <span>{branch.branch_name} (ID: {branch.branch_id})</span>
+                                    <button onClick={() => handleSelectBranch(branch)} className="operate-button">
+                                        Operate
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            ) : (
+                // VIEW 2: Staff List for a Selected Branch
+                <div className="staff-view">
+                    <button onClick={handleBackToBranches} className="back-button">← Back to Branches</button>
+                    <h3>Staff for {selectedBranch.branch_name}</h3>
+                    {loading ? <p className="loading">Loading Staff...</p> : (
                         <ul className="staff-list">
-                            {branch.staff.map(staff => (
+                            {currentStaff.length > 0 ? currentStaff.map(staff => (
                                 <li key={staff._id} className="staff-item">
-                                    <span>{staff.name} ({staff.role})</span>
+                                    <span>{staff.name} <strong className={`role-${staff.role.toLowerCase()}`}>({staff.role})</strong></span>
                                     <div className="staff-actions">
-                                        <button onClick={() => handleChangeRole(staff._id, staff.role)}>
-                                            {staff.role === 'Manager' ? 'Demote to Staff' : 'Promote to Manager'}
-                                        </button>
+                                        {staff.role === 'Manager' ? (
+                                            <button onClick={() => handleChangeRole(staff._id, staff.role)} className="demote-button">
+                                                Demote
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={() => handleChangeRole(staff._id, staff.role)} 
+                                                className="promote-button"
+                                                
+                                                title={hasManager ? "A manager already exists for this branch." : "Promote to Manager"}
+                                            >
+                                                Promote
+                                            </button>
+                                        )}
                                         <button onClick={() => handleRemoveStaff(staff._id, staff.name)} className="remove-button">
                                             Remove
                                         </button>
                                     </div>
                                 </li>
-                            ))}
+                            )) : <p>No staff found for this branch.</p>}
                         </ul>
-                    ) : (
-                        <p>No staff found for this branch.</p>
                     )}
                 </div>
-            ))}
+            )}
         </div>
     );
 };

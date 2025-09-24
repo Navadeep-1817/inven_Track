@@ -1,142 +1,184 @@
-/* General Component Styling */
-.staff-management-container {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* General Body and Main Container Styling */
+body {
+    background-color: #f0f2f5; /* Light grey background for the whole page */
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headings */
+.staff-management-container {
+    max-width: 850px; /* Slightly wider container */
+    margin: 50px auto; /* More margin top/bottom */
+    padding: 2.5rem 2rem; /* Increased padding */
+    background-color: #ffffff;
+    border-radius: 12px; /* Slightly more rounded corners */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* Stronger, softer shadow */
+    border: 1px solid #e0e0e0; /* Subtle border */
+}
+
 h2 {
-  color: #2c3e50;
-  font-size: 2rem;
-  font-weight: 600;
-  border-bottom: 3px solid #e0e6ec;
-  padding-bottom: 15px;
-  margin-bottom: 25px;
-  text-align: center;
+    text-align: center;
+    color: #2c3e50; /* Darker, more professional blue-grey */
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
 }
 
 h3 {
-  color: #34495e;
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-top: 0;
-  margin-bottom: 15px;
+    text-align: left; /* Aligned with content */
+    color: #34495e; /* Slightly lighter than h2 */
+    margin-top: 2.5rem; /* Space above subheadings */
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+    border-bottom: 1px solid #f2f2f2; /* Subtle separator */
+    padding-bottom: 0.5rem;
 }
 
-/* Section Containers */
-.branch-selector,
-.staff-list-section {
-  padding: 20px;
-  border: 1px solid #e0e6ec;
-  border-radius: 8px;
-  margin-bottom: 25px;
-  background-color: #fcfdfe;
-}
-
-/* Branch Selector Styles */
-.branch-selector {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.branch-selector label {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #495057;
-}
-
-.branch-selector select {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #cdd1d4;
-  border-radius: 6px;
-  font-size: 1rem;
-  background-color: #fff;
-  cursor: pointer;
-  appearance: none; /* Removes default dropdown arrow */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%23000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 20px;
-}
-
-/* Staff List Styles */
+/* List Styling */
+.branch-list,
 .staff-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
+/* List Item Styling (for both branches and staff) */
+.branch-item,
 .staff-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background-color: #fff;
-  border-bottom: 1px solid #e0e6ec;
-  transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem; /* More padding */
+    background-color: #ffffff;
+    border: 1px solid #e9ecef; /* Lighter border */
+    border-radius: 8px;
+    margin-bottom: 0.8rem; /* Slightly more space between items */
+    transition: all 0.25s ease-in-out; /* Smooth transition for all properties */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03); /* Lighter initial shadow */
 }
 
-.staff-item:last-child {
-  border-bottom: none;
-}
-
+.branch-item:hover,
 .staff-item:hover {
-  background-color: #f7f9fa;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* More pronounced shadow on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    border-color: #d1d8df; /* Darken border on hover */
 }
 
 .staff-item span {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #495057;
+    font-size: 1.15rem;
+    color: #34495e; /* Darker text */
+    flex-grow: 1; /* Allow text to take available space */
 }
 
-.staff-actions {
-  display: flex;
-  gap: 10px;
+.staff-item .role-manager {
+    color: #e74c3c; /* Manager role in a clear red */
+    font-weight: 600; /* Bolder for emphasis */
 }
 
-/* Buttons */
+.staff-item .role-staff {
+    color: #3498db; /* Staff role in a clear blue */
+    font-weight: 500;
+}
+
+/* Button General Styling */
 button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: white;
-  background-color: #007bff;
-  transition: background-color 0.3s ease;
+    padding: 0.75rem 1.4rem; /* More generous padding */
+    border: none;
+    border-radius: 6px; /* Slightly more rounded buttons */
+    color: white;
+    font-size: 0.95rem; /* Slightly larger font */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.25s ease, box-shadow 0.2s ease, transform 0.1s ease; /* Smooth transitions */
+    margin-left: 0.8rem; /* More space between buttons */
+    letter-spacing: 0.5px; /* Slight letter spacing */
 }
 
-button.remove-button {
-  background-color: #dc3545;
+button:hover:not(:disabled) {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Shadow on hover for buttons */
+    transform: translateY(-1px); /* Slight lift */
 }
 
-button.remove-button:hover {
-  background-color: #c82333;
+button:active:not(:disabled) {
+    transform: translateY(0); /* Press down effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Messages */
-p {
-  color: #777;
+/* Specific Button Colors */
+.operate-button {
+    background-color: #3498db; /* Bright blue for "Operate" */
+}
+.operate-button:hover:not(:disabled) {
+    background-color: #081dab; /* Darker blue on hover */
+}
+
+.promote-button {
+    background-color: #0363d0; /* Blue for "Promote" */
+}
+.promote-button:hover:not(:disabled) {
+    background-color: #0363d0; /* Darker blue on hover */
+}
+
+.demote-button {
+    background-color: #0363d0; /* Orange for "Demote" */
+}
+.demote-button:hover:not(:disabled) {
+    background-color: #06369e9a; /* Darker orange on hover */
+}
+
+.remove-button {
+    background-color: #e74c3c; /* Red for "Remove" */
+}
+.remove-button:hover:not(:disabled) {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+.back-button {
+    background-color: #1447c7; /* Muted gray for "Back" */
+    margin-bottom: 2rem; /* More space below */
+    display: inline-flex; /* Align icon and text if present */
+    align-items: center;
+    padding: 0.6rem 1.2rem; /* Slightly less padding to feel like a navigation element */
+    font-size: 1rem;
+    border-radius: 5px;
+}
+.back-button:hover:not(:disabled) {
+    background-color: #2fa2f5; /* Darker gray on hover */
+}
+
+/* Staff Actions Container */
+.staff-actions {
+    display: flex; /* Arrange buttons in a row */
+    gap: 0.8rem; /* Space between buttons */
+}
+
+
+/* Loading and Error Messages */
+.loading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    padding: 2rem;
 }
 
 .error {
-  color: #dc3545;
-  background-color: #fcebeb;
-  border: 1px solid #f5c6cb;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  font-weight: 600;
-  text-align: center;
+    text-align: center;
+    color: #e74c3c; /* Danger Red */
+    background-color: #fef1f1; /* Very light red background */
+    border: 1px solid #e74c3c;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+/* Ensure the back arrow is visible on the back button */
+.back-button::before {
+    content: '←'; /* Unicode left arrow */
+    margin-right: 0.5rem;
+    font-weight: bold;
+    font-size: 1.2em;
 }
