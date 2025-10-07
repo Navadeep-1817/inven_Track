@@ -16,6 +16,7 @@ import Signup from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Branch from "./pages/Branch";
 import Attendance from "./pages/manager/Attendance";
+import ManagerStaff from "./pages/manager/ManagerStaff";
 
 // ✅ Dashboards
 import ManagerDashboard from "./pages/ManagerDashboard";
@@ -86,7 +87,9 @@ function App() {
                 <ManagerNavbar />
                 <Routes>
                   <Route index element={<ManagerDashboard />} /> {/* default */}
-                  <Route path="attendance" element={<Attendance />} />
+                  <Route path="/attendance" element={<Attendance />} />
+                  <Route path="/managerstaff" element={<ManagerStaff/>}/>
+                  <Route path="/aboutUs" element={<AboutUs />} />
                 </Routes>
                 <Footer />
               </>
