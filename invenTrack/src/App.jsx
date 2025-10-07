@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Branch from "./pages/Branch";
-
+import Attendance from "./pages/manager/Attendance";
 // ✅ Import dashboards
 import ManagerDashboard from "./pages/managerDashboard";
 import SuperAdminDashboard from "./pages/superAdminDashboard";
@@ -71,6 +71,7 @@ function App() {
                   <Route path="/branch" element={<Branch />} />
                   <Route path="/aboutus" element={<AboutUs />} />
                   <Route path="/logout" element={<Logout />} />
+                  <Route path="/attendance" element={<Attendance />} />
                 </Routes>
                 <Footer />
               </>

@@ -16,6 +16,7 @@
           <button onClick={() => navigate("/invoice")}>Invoice</button>
           <button onClick={() => navigate("/reports")}>Reports</button>
           <button onClick={() => navigate("/staff")}>Staff</button>
+          <button onClick={() => navigate("/attendance")}>Attendance</button>
         </div>
         <div className="navbar-right">
           <button onClick={() => navigate("/aboutus")}>About Us</button>
