@@ -117,7 +117,7 @@ const Staff = () => {
             ) : (
                 // VIEW 2: Staff List for a Selected Branch
                 <div className="staff-view">
-                    <button onClick={handleBackToBranches} className="back-button">← Back to Branches</button>
+                    <button onClick={handleBackToBranches} className="back-button"> Back to Branches</button>
                     <h3>Staff for {selectedBranch.branch_name}</h3>
                     {loading ? <p className="loading">Loading Staff...</p> : (
                         <ul className="staff-list">

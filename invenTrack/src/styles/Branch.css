@@ -1,113 +1,193 @@
+/* Branch.css */
+
+/* Container for the whole page */
 .branch-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two-column layout */
+  gap: 40px;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  width: auto;
 }
 
+/* Page title */
 .branch-title {
-    text-align: center;
-    color: #333;
+  grid-column: span 2;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #222;
+}
+
+/* Error and loading messages */
+.branch-error {
+  grid-column: span 2;
+  background-color: #fde2e2;
+  color: #b91c1c;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .branch-loading {
-    text-align: center;
-    color: #555;
+  grid-column: span 2;
+  text-align: center;
+  color: #555;
+  font-style: italic;
+  margin-bottom: 15px;
 }
 
-.branch-error {
-    color: red;
-    text-align: center;
-    margin: 10px 0;
-}
 
 .branch-create-section {
-    margin-bottom: 30px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.branch-create-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .branch-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .branch-input {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.branch-input:focus {
+  outline: none;
+  border-color: #4a90e2;
 }
 
 .branch-button {
-    padding: 10px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 10px 14px;
+  background-color: #4a90e2;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .branch-button:hover {
-    background-color: #0056b3;
-}
-
-.branch-divider {
-    margin: 20px 0;
-    border: none;
-    height: 1px;
-    background-color: #ccc;
+  background-color: #357ab8;
 }
 
 .branch-list-section {
-    margin-top: 20px;
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
+
+.branch-list-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
 
 .branch-search-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    font-size: 16px;
-    border: 1px solid #aaa;
-    border-radius: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-bottom: 15px;
 }
 
+.branch-search-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+
 .branch-list {
-    list-style-type: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .branch-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    margin-bottom: 10px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f1f5f9;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.branch-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .branch-info {
-    font-size: 16px;
-    color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
 }
 
+/* Delete button */
 .branch-delete-button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 6px 12px;
+  background-color: #e74c3c;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .branch-delete-button:hover {
-    background-color: #c82333;
+  background-color: #c0392b;
 }
 
+
 .branch-no-results {
-    text-align: center;
-    color: #777;
+  color: #555;
+  font-style: italic;
+  text-align: center;
+  margin-top: 10px;
+}
+
+
+.branch-divider {
+  grid-column: span 2;
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 30px 0;
+}
+
+
+@media (max-width: 768px) {
+  .branch-container {
+    grid-template-columns: 1fr;
+  }
 }

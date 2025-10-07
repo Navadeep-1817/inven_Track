@@ -5,14 +5,6 @@ body{
     font-weight: 900;
 }
 
-/* Make the entire app take full height */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column; 
-}
 
 /* Main content should expand and push footer down */
 .content {
@@ -22,4 +14,70 @@ html, body, #root {
 button{
   color: blue;
   background-color: white;
+}
+
+/* index.css */
+
+/* Reset and basic styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+/* Main app container takes full viewport height */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main content grows to fill space above footer */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f8f9fa; /* optional background */
+}
+
+
+.footer {
+  position: static;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #0d3b66;
+  color: white;
+  text-align: center;
+  padding: 15px 20px;
+  z-index: 1000;
+}
+
+
+/* Footer links */
+.footer a {
+  color: white;
+  text-decoration: none;
+  margin-left: 15px;
+  font-weight: 500;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 15px;
+  }
+  .footer {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
 }

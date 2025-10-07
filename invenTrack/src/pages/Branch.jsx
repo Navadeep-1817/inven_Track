@@ -10,6 +10,7 @@ const Branch = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showBranches, setShowBranches] = useState(false); // NEW: toggle visibility
 
     useEffect(() => {
         const fetchBranches = async () => {
@@ -70,10 +71,11 @@ const Branch = () => {
 
     return (
         <div className="branch-container">
-            <h2 className="branch-title">Branch Management</h2>
+            
             {loading && <p className="branch-loading">Loading...</p>}
             {error && <p className="branch-error">{error}</p>}
 
+            {/* Left Section: Create Branch */}
             <div className="branch-create-section">
                 <h3>Create New Branch</h3>
                 <form onSubmit={handleCreateBranch} className="branch-form">
@@ -105,36 +107,46 @@ const Branch = () => {
                 </form>
             </div>
 
-            <hr className="branch-divider" />
-
+            {/* Right Section: Explore Branches */}
             <div className="branch-list-section">
-                <h3>Existing Branches</h3>
-                <input
-                    type="text"
-                    placeholder="Search by name, ID, or location..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="branch-search-input"
-                />
+                <h3>Explore Branches</h3>
+                <button
+                    onClick={() => setShowBranches(!showBranches)}
+                    className="branch-button"
+                >
+                    {showBranches ? 'Hide Branches' : 'Show All Branches'}
+                </button>
 
-                {filteredBranches.length > 0 ? (
-                    <ul className="branch-list">
-                        {filteredBranches.map(branch => (
-                            <li key={branch.branch_id} className="branch-item">
-                                <span className="branch-info">
-                                    {branch.branch_name} (ID: {branch.branch_id}) - {branch.branch_location}
-                                </span>
-                                <button
-                                    onClick={() => handleDeleteBranch(branch.branch_id)}
-                                    className="branch-delete-button"
-                                >
-                                    Delete Branch
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="branch-no-results">No branches found.</p>
+                {showBranches && (
+                    <>
+                        <input
+                            type="text"
+                            placeholder="Search by name, ID, or location..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="branch-search-input"
+                        />
+
+                        {filteredBranches.length > 0 ? (
+                            <ul className="branch-list">
+                                {filteredBranches.map(branch => (
+                                    <li key={branch.branch_id} className="branch-item">
+                                        <span className="branch-info">
+                                            {branch.branch_name} (ID: {branch.branch_id}) - {branch.branch_location}
+                                        </span>
+                                        <button
+                                            onClick={() => handleDeleteBranch(branch.branch_id)}
+                                            className="branch-delete-button"
+                                        >
+                                            Delete Branch
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="branch-no-results">No branches found.</p>
+                        )}
+                    </>
                 )}
             </div>
         </div>
