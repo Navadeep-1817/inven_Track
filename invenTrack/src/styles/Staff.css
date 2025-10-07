@@ -84,18 +84,6 @@ h3 {
 }
 
 /* Button General Styling */
-button {
-    padding: 0.75rem 1.4rem; /* More generous padding */
-    border: none;
-    border-radius: 6px; /* Slightly more rounded buttons */
-    color: white;
-    font-size: 0.95rem; /* Slightly larger font */
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.25s ease, box-shadow 0.2s ease, transform 0.1s ease; /* Smooth transitions */
-    margin-left: 0.8rem; /* More space between buttons */
-    letter-spacing: 0.5px; /* Slight letter spacing */
-}
 
 button:hover:not(:disabled) {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Shadow on hover for buttons */

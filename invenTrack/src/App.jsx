@@ -16,10 +16,13 @@ import Signup from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Branch from "./pages/Branch";
 import Attendance from "./pages/manager/Attendance";
-// ✅ Import dashboards
-import ManagerDashboard from "./pages/managerDashboard";
+
+// ✅ Dashboards
+import ManagerDashboard from "./pages/ManagerDashboard";
 import SuperAdminDashboard from "./pages/superAdminDashboard";
 import StaffDashboard from "./pages/staffDashboard";
+
+// ✅ Navbars
 import ManagerNavbar from "./components/ManagerNavbar";
 import StaffNavbar from "./components/StaffNavbar";
 
@@ -51,7 +54,7 @@ function App() {
             }
           />
 
-          {/* Other pages with global Navbar + Footer */}
+          {/* Global Navbar + Footer */}
           <Route
             path="/*"
             element={
@@ -59,9 +62,7 @@ function App() {
                 <Navbar />
                 <Routes>
                   <Route path="/home" element={<Home />} />
-                  
                   <Route path="/superAdminDashboard" element={<SuperAdminDashboard />} />
-                  <Route path="/managerDashboard" element={<ManagerDashboard />} />
                   <Route path="/staffDashboard" element={<StaffDashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/inventory" element={<Inventory />} />
@@ -71,26 +72,40 @@ function App() {
                   <Route path="/branch" element={<Branch />} />
                   <Route path="/aboutus" element={<AboutUs />} />
                   <Route path="/logout" element={<Logout />} />
-                  <Route path="/attendance" element={<Attendance />} />
                 </Routes>
                 <Footer />
               </>
             }
           />
-          <Route path="/managerDashboard" element={
-            <>
-              <ManagerNavbar />
-              <ManagerDashboard />
-              <Footer />
-            </>
-          } />
-          <Route path="/staffDashboard" element={
-            <>
-              <StaffNavbar />
-              <StaffDashboard />
-              <Footer />
-            </>
-          } />
+
+          {/* ✅ Manager Routes */}
+          <Route
+            path="/managerDashboard/*"
+            element={
+              <>
+                <ManagerNavbar />
+                <Routes>
+                  <Route index element={<ManagerDashboard />} /> {/* default */}
+                  <Route path="attendance" element={<Attendance />} />
+                </Routes>
+                <Footer />
+              </>
+            }
+          />
+
+          {/* ✅ Staff Routes */}
+          <Route
+            path="/staffDashboard/*"
+            element={
+              <>
+                <StaffNavbar />
+                <Routes>
+                  <Route index element={<StaffDashboard />} />
+                </Routes>
+                <Footer />
+              </>
+            }
+          />
         </Routes>
       </div>
     </Router>
