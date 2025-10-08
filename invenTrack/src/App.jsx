@@ -74,7 +74,7 @@ function App() {
                   <Route path="/aboutus" element={<AboutUs />} />
                   <Route path="/logout" element={<Logout />} />
                 </Routes>
-                <Footer />
+                
               </>
             }
           />
@@ -91,7 +91,7 @@ function App() {
                   <Route path="/managerstaff" element={<ManagerStaff/>}/>
                   <Route path="/aboutUs" element={<AboutUs />} />
                 </Routes>
-                <Footer />
+                
               </>
             }
           />

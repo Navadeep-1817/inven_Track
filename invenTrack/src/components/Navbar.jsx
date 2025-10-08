@@ -39,7 +39,6 @@
           <button onClick={() => navigate("/inventory")}>Inventory</button>
           <button onClick={() => navigate("/invoice")}>Invoice</button>
           <button onClick={() => navigate("/reports")}>Reports</button>
-          <button onClick={() => navigate("/staff")}>Staff</button>
           <button onClick={() => navigate("/branch")}>Branch</button>
         </div>
         <div className="navbar-right">

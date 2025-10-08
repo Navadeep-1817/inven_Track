@@ -10,8 +10,10 @@ const Branch = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showBranches, setShowBranches] = useState(false); // NEW: toggle visibility
+    const [selectedBranch, setSelectedBranch] = useState(null);
+    const [currentStaff, setCurrentStaff] = useState([]);
 
+    // Fetch branches
     useEffect(() => {
         const fetchBranches = async () => {
             setLoading(true);
@@ -28,6 +30,7 @@ const Branch = () => {
         fetchBranches();
     }, []);
 
+    // Create Branch
     const handleCreateBranch = async (e) => {
         e.preventDefault();
         if (!newBranchName || !newBranchId || !newBranchLocation) {
@@ -51,6 +54,7 @@ const Branch = () => {
         }
     };
 
+    // Delete Branch
     const handleDeleteBranch = async (branchId) => {
         if (window.confirm('Are you sure you want to delete this branch and all its staff?')) {
             try {
@@ -63,91 +67,152 @@ const Branch = () => {
         }
     };
 
+    // View Branch (fetch staff)
+    const handleViewBranch = async (branch) => {
+        setSelectedBranch(branch);
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:5000/api/staff/branches/${branch.branch_id}/staff`);
+            setCurrentStaff(response.data);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch staff for this branch.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBackToBranches = () => {
+        setSelectedBranch(null);
+        setCurrentStaff([]);
+    };
+
+    // Remove Staff
+    const handleRemoveStaff = async (staffId, staffName) => {
+        if (window.confirm(`Are you sure you want to remove ${staffName}?`)) {
+            try {
+                await axios.delete(`http://localhost:5000/api/staff/staff/${staffId}`);
+                setCurrentStaff(prevStaff => prevStaff.filter(s => s._id !== staffId));
+                alert(`${staffName} has been removed.`);
+            } catch (err) {
+                setError('Failed to remove staff.');
+            }
+        }
+    };
+
+    // Change Role
+    const handleChangeRole = async (staffId, currentRole) => {
+        const newRole = currentRole === 'Manager' ? 'Staff' : 'Manager';
+        if (newRole === 'Manager' && currentStaff.some(s => s.role === 'Manager')) {
+            alert('A manager already exists for this branch. Please demote the current manager first.');
+            return;
+        }
+        if (window.confirm(`Are you sure you want to change this person's role to ${newRole}?`)) {
+            try {
+                const response = await axios.patch(`http://localhost:5000/api/staff/staff/${staffId}`, { role: newRole });
+                setCurrentStaff(prevStaff => prevStaff.map(s => (s._id === staffId ? response.data : s)));
+            } catch (err) {
+                setError('Failed to change role.');
+            }
+        }
+    };
+
     const filteredBranches = branches.filter(branch =>
         branch.branch_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         branch.branch_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         branch.branch_location.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const hasManager = currentStaff.some(staff => staff.role === 'Manager');
+
     return (
-        <div className="branch-container">
-            
-            {loading && <p className="branch-loading">Loading...</p>}
-            {error && <p className="branch-error">{error}</p>}
+        <div className="branch-container-abc">
+            <h2 className="title-abc">Branch Management</h2>
+            {error && <p className="error-abc">{error}</p>}
+            {loading && <p className="loading-abc">Loading...</p>}
 
-            {/* Left Section: Create Branch */}
-            <div className="branch-create-section">
-                <h3>Create New Branch</h3>
-                <form onSubmit={handleCreateBranch} className="branch-form">
-                    <input
-                        type="text"
-                        placeholder="Branch Name"
-                        value={newBranchName}
-                        onChange={(e) => setNewBranchName(e.target.value)}
-                        required
-                        className="branch-input"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Branch ID"
-                        value={newBranchId}
-                        onChange={(e) => setNewBranchId(e.target.value)}
-                        required
-                        className="branch-input"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Branch Location"
-                        value={newBranchLocation}
-                        onChange={(e) => setNewBranchLocation(e.target.value)}
-                        required
-                        className="branch-input"
-                    />
-                    <button type="submit" className="branch-button">Create Branch</button>
-                </form>
-            </div>
-
-            {/* Right Section: Explore Branches */}
-            <div className="branch-list-section">
-                <h3>Explore Branches</h3>
-                <button
-                    onClick={() => setShowBranches(!showBranches)}
-                    className="branch-button"
-                >
-                    {showBranches ? 'Hide Branches' : 'Show All Branches'}
-                </button>
-
-                {showBranches && (
-                    <>
+            <div className="cards-wrapper-abc">
+                {/* Create Branch Card */}
+                <div className="create-branch-card-abc">
+                    <h3>Create New Branch</h3>
+                    <form onSubmit={handleCreateBranch} className="form-abc">
                         <input
                             type="text"
-                            placeholder="Search by name, ID, or location..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="branch-search-input"
+                            placeholder="Branch Name"
+                            value={newBranchName}
+                            onChange={(e) => setNewBranchName(e.target.value)}
+                            className="input-abc"
                         />
+                        <input
+                            type="text"
+                            placeholder="Branch ID"
+                            value={newBranchId}
+                            onChange={(e) => setNewBranchId(e.target.value)}
+                            className="input-abc"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Branch Location"
+                            value={newBranchLocation}
+                            onChange={(e) => setNewBranchLocation(e.target.value)}
+                            className="input-abc"
+                        />
+                        <button type="submit" className="button-abc">Create Branch</button>
+                    </form>
+                </div>
 
-                        {filteredBranches.length > 0 ? (
-                            <ul className="branch-list">
+                {/* Operate Branches Card */}
+                <div className="operate-branch-card-abc">
+                    {!selectedBranch ? (
+                        <>
+                            <h3>Operate on Branches</h3>
+                            <input
+                                type="text"
+                                placeholder="Search by name, ID, or location..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="search-abc"
+                            />
+                            <ul className="branch-list-abc">
                                 {filteredBranches.map(branch => (
-                                    <li key={branch.branch_id} className="branch-item">
-                                        <span className="branch-info">
-                                            {branch.branch_name} (ID: {branch.branch_id}) - {branch.branch_location}
-                                        </span>
-                                        <button
-                                            onClick={() => handleDeleteBranch(branch.branch_id)}
-                                            className="branch-delete-button"
-                                        >
-                                            Delete Branch
-                                        </button>
+                                    <li key={branch.branch_id} className="branch-item-abc">
+                                        <span>{branch.branch_name} (ID: {branch.branch_id}) - {branch.branch_location}</span>
+                                        <div className="branch-actions-abc">
+                                            <button onClick={() => handleViewBranch(branch)} className="button-abc">View</button>
+                                            <button onClick={() => handleDeleteBranch(branch.branch_id)} className="delete-abc">Delete</button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p className="branch-no-results">No branches found.</p>
-                        )}
-                    </>
-                )}
+                        </>
+                    ) : (
+                        <>
+                            <button onClick={handleBackToBranches} className="back-abc">Back to Branches</button>
+                            <h3>Staff for {selectedBranch.branch_name}</h3>
+                            <ul className="staff-list-abc">
+                                {currentStaff.length > 0 ? currentStaff.map(staff => (
+                                    <li key={staff._id} className="staff-item-abc">
+                                        <span>{staff.name} <strong className={`role-abc ${staff.role.toLowerCase()}-abc`}>({staff.role})</strong></span>
+                                        <div className="staff-actions-abc">
+                                            {staff.role === 'Manager' ? (
+                                                <button onClick={() => handleChangeRole(staff._id, staff.role)} className="demote-abc">Demote</button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleChangeRole(staff._id, staff.role)}
+                                                    className="promote-abc"
+                                                    title={hasManager ? "A manager already exists for this branch." : "Promote to Manager"}
+                                                >
+                                                    Promote
+                                                </button>
+                                            )}
+                                            <button onClick={() => handleRemoveStaff(staff._id, staff.name)} className="remove-abc">Remove</button>
+                                        </div>
+                                    </li>
+                                )) : <p>No staff found for this branch.</p>}
+                            </ul>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );
