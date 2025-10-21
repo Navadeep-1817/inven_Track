@@ -139,9 +139,10 @@ function Attendance() {
       setLoading(true);
       try {
         const token = localStorage.getItem("token"); // assuming JWT is stored here after login
+        console.log("Token before request:", token); 
         const response = await axios.get("http://localhost:5000/api/attendance/staff", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+          headers: { Authorization: `Bearer ${token}` },  
+        }); 
 
         const staffData = response.data.staff || [];
         setStaffList(staffData);
