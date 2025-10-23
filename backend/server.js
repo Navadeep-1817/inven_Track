@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 
+
 connectDB();
 
 // Routes
@@ -15,6 +16,9 @@ const authRoutes = require("./routes/authRoutes");
 const staffRoutes = require("./routes/staffRoutes");
 const branchRoutes = require("./routes/branchRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
+
+
 
 
 
@@ -22,6 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/branches', branchRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/inventory", inventoryRoutes);
 
 
 
