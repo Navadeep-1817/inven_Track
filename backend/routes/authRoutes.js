@@ -8,12 +8,11 @@ const {
 } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 
-// Public routes
 router.post("/signup", signup);
-router.post("/login-employee", loginEmployee);        // ✅ Changed from "/login"
-router.post("/login-superadmin", loginSuperAdmin);    // ✅ Changed from "/superadmin/login"
+router.post("/login-employee", loginEmployee);
+router.post("/login-superadmin", loginSuperAdmin);
 
-// Protected route
 router.get("/me", protect, getMe);
+router.get("/profile", protect, getMe);
 
 module.exports = router;

@@ -165,15 +165,6 @@
   height: 3px;
 }
 
-
-.stat-icon-inv {
-  font-size: 2rem;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 .stat-content-inv {
   flex: 1;
 }
@@ -207,19 +198,9 @@
   position: relative;
 }
 
-.search-container-inv::before {
-  content: "🔍";
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  font-size: 1.1rem;
-}
-
 .search-input-inv {
   width: 100%;
-  padding: 0.85rem 1rem 0.85rem 3rem;
+  padding: 0.85rem 1rem;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-size: 0.95rem;
@@ -470,25 +451,20 @@
   justify-content: center;
 }
 
-.edit-btn-inv,
-.delete-btn-inv {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .edit-btn-inv {
+  padding: 0.5rem 1rem;
   background: #f0f9ff;
   color: #0369a1;
   border: 1px solid #bae6fd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .edit-btn-inv:hover {
@@ -498,9 +474,19 @@
 }
 
 .delete-btn-inv {
+  padding: 0.5rem;
   background: #fef2f2;
   color: #dc2626;
   border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .delete-btn-inv:hover {
@@ -592,7 +578,7 @@
   border-radius: 16px;
   padding: 2rem;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
@@ -618,7 +604,7 @@
   text-align: center;
 }
 
-.modal-content-inv input {
+.modal-input-inv {
   width: 100%;
   padding: 0.85rem 1rem;
   border: 2px solid #e2e8f0;
@@ -631,20 +617,100 @@
   box-sizing: border-box;
 }
 
-.modal-content-inv input:focus {
+.modal-input-inv:focus {
   border-color: #4f46e5;
   box-shadow: 0 4px 20px rgba(79, 70, 229, 0.15);
   outline: none;
 }
 
-.modal-content-inv input:hover {
+.modal-input-inv:hover {
   border-color: #cbd5e1;
 }
 
-.modal-content-inv input:disabled {
+.modal-input-inv:disabled {
   background: #f8fafc;
   color: #94a3b8;
   cursor: not-allowed;
+}
+
+/* Attribute Section Styles */
+.attributes-section-inv {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.attributes-label-inv {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.attribute-input-row-inv {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.attribute-key-inv {
+  flex: 1;
+  min-width: 120px;
+}
+
+.attribute-value-inv {
+  flex: 2;
+  min-width: 150px;
+}
+
+.remove-attribute-btn-inv {
+  padding: 0.5rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.remove-attribute-btn-inv:hover {
+  background: #fee2e2;
+  transform: scale(1.05);
+}
+
+.add-attribute-btn-inv {
+  padding: 0.75rem 1rem;
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.add-attribute-btn-inv:hover {
+  background: #e0f2fe;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(3, 105, 161, 0.2);
 }
 
 .modal-actions-inv {
@@ -744,6 +810,22 @@
   .modal-content-inv {
     padding: 1.5rem;
     margin: 1rem;
+    max-width: 95%;
+  }
+  
+  .attribute-input-row-inv {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .attribute-key-inv,
+  .attribute-value-inv {
+    width: 100%;
+  }
+  
+  .remove-attribute-btn-inv {
+    align-self: flex-end;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -769,11 +851,19 @@
     gap: 0.25rem;
   }
   
-  .edit-btn-inv,
+  .edit-btn-inv {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
   .delete-btn-inv {
     width: 35px;
     height: 35px;
     font-size: 0.9rem;
+  }
+  
+  .modal-content-inv {
+    padding: 1.25rem;
   }
 }
 

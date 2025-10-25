@@ -16,6 +16,7 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/SignUp.jsx";
 import Dashboard from "./pages/DashBoard.jsx";
 import Branch from "./pages/Branch.jsx";
+import LowStockAlerts from "./pages/LowStockAlerts.jsx";
 
 // Import Manager pages
 import Attendance from "./pages/manager/Attendance.jsx";
@@ -30,6 +31,7 @@ import StaffDashboard from "./pages/staffDashboard.jsx";
 // Import Role-specific Navbars
 import ManagerNavbar from "./components/ManagerNavbar.jsx";
 import StaffNavbar from "./components/StaffNavbar.jsx";
+import ManagerLowStockAlerts from "./pages/manager/ManagerLowStockAlerts.jsx";
 
 function App() {
   return (
@@ -74,6 +76,7 @@ function App() {
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/invoice" element={<Invoice />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/lowStockAlerts" element={<LowStockAlerts />} />
                   <Route path="/staff" element={<Staff />} />
                   <Route path="/branch" element={<Branch />} />
                   <Route path="/aboutus" element={<AboutUs />} />
@@ -95,6 +98,7 @@ function App() {
                   <Route path="attendance" element={<Attendance />} />
                   <Route path="managerstaff" element={<ManagerStaff />} />
                   <Route path="managerInventory" element={<ManageInventory />} />
+                  <Route path="managerLowStockAlerts" element={<ManagerLowStockAlerts/>} />
                   <Route path="aboutUs" element={<AboutUs />} />
                 </Routes>
                 {/* Manager-specific footer? */}

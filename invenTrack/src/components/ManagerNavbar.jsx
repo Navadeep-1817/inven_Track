@@ -12,6 +12,7 @@ function ManagerNavbar() {
         <button onClick={() => navigate("/managerDashboard")}>Home</button>
         <button onClick={() => navigate("/managerDashboard/attendance")}>Attendance</button>
         <button onClick={()=> navigate("/managerDashboard/managerInventory")}>Inventory</button>
+        <button onClick={()=> navigate("/managerDashboard/managerLowStockAlerts")}>ALerts</button>
         <button onClick={()=> navigate("/managerDashboard/staff")}>Staff</button>
         
       </div>

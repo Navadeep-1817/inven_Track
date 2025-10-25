@@ -1,4 +1,3 @@
-// src/components/SuperAdminInventory.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import '../styles/Inventory.css';
@@ -13,7 +12,7 @@ const Inventory = () => {
     pCategory: "all",
     brand: "all",
     pSubCat: "all",
-    priceRange: [0, 100000],
+    priceRange: [0, 10000000000],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,6 +32,7 @@ const Inventory = () => {
     quantity: "",
     attributes: {},
   });
+  const [attributeInputs, setAttributeInputs] = useState([{ key: "", value: "" }]);
 
   // 🧩 Fetch branches on mount
   useEffect(() => {
@@ -185,6 +185,14 @@ const Inventory = () => {
       return;
     }
 
+    // Build attributes object from inputs
+    const attributes = {};
+    attributeInputs.forEach(({ key, value }) => {
+      if (key.trim() && value.trim()) {
+        attributes[key.trim()] = value.trim();
+      }
+    });
+
     try {
       setLoading(true);
       await axiosInstance.post("/inventory", {
@@ -192,6 +200,7 @@ const Inventory = () => {
         ...formData,
         price: Number(formData.price),
         quantity: Number(formData.quantity),
+        attributes,
       });
       
       // Refresh inventory
@@ -210,12 +219,22 @@ const Inventory = () => {
   // Edit Product
   const handleEditProduct = async (e) => {
     e.preventDefault();
+    
+    // Build attributes object from inputs
+    const attributes = {};
+    attributeInputs.forEach(({ key, value }) => {
+      if (key.trim() && value.trim()) {
+        attributes[key.trim()] = value.trim();
+      }
+    });
+
     try {
       setLoading(true);
       await axiosInstance.put(`/inventory/${selectedBranch}/${currentProduct.pid}`, {
         ...formData,
         price: Number(formData.price),
         quantity: Number(formData.quantity),
+        attributes,
       });
       
       // Refresh inventory
@@ -264,6 +283,17 @@ const Inventory = () => {
       quantity: product.quantity,
       attributes: product.attributes || {},
     });
+    
+    // Convert existing attributes to input array
+    const attrs = product.attributes || {};
+    if (Object.keys(attrs).length > 0) {
+      setAttributeInputs(
+        Object.entries(attrs).map(([key, value]) => ({ key, value }))
+      );
+    } else {
+      setAttributeInputs([{ key: "", value: "" }]);
+    }
+    
     setShowEditModal(true);
   };
 
@@ -279,12 +309,33 @@ const Inventory = () => {
       quantity: "",
       attributes: {},
     });
+    setAttributeInputs([{ key: "", value: "" }]);
   };
 
   // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  // Handle attribute input change
+  const handleAttributeChange = (index, field, value) => {
+    const newInputs = [...attributeInputs];
+    newInputs[index][field] = value;
+    setAttributeInputs(newInputs);
+  };
+
+  // Add new attribute input
+  const addAttributeInput = () => {
+    setAttributeInputs([...attributeInputs, { key: "", value: "" }]);
+  };
+
+  // Remove attribute input
+  const removeAttributeInput = (index) => {
+    if (attributeInputs.length > 1) {
+      const newInputs = attributeInputs.filter((_, i) => i !== index);
+      setAttributeInputs(newInputs);
+    }
   };
 
   // Get unique values for filters
@@ -676,6 +727,47 @@ const Inventory = () => {
                   min="0"
                   className="modal-input-inv"
                 />
+                
+                {/* Dynamic Attributes Section */}
+                <div className="attributes-section-inv">
+                  <label className="attributes-label-inv">Product Attributes (Optional)</label>
+                  {attributeInputs.map((attr, index) => (
+                    <div key={index} className="attribute-input-row-inv">
+                      <input
+                        type="text"
+                        placeholder="Attribute Key (e.g., weight)"
+                        value={attr.key}
+                        onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
+                        className="modal-input-inv attribute-key-inv"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Value (e.g., 5kg)"
+                        value={attr.value}
+                        onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
+                        className="modal-input-inv attribute-value-inv"
+                      />
+                      {attributeInputs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeAttributeInput(index)}
+                          className="remove-attribute-btn-inv"
+                          title="Remove attribute"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addAttributeInput}
+                    className="add-attribute-btn-inv"
+                  >
+                    + Add Another Attribute
+                  </button>
+                </div>
+
                 <div className="modal-actions-inv">
                   <button type="submit" className="submit-btn-inv">Add Product</button>
                   <button 
@@ -764,6 +856,47 @@ const Inventory = () => {
                   min="0"
                   className="modal-input-inv"
                 />
+                
+                {/* Dynamic Attributes Section */}
+                <div className="attributes-section-inv">
+                  <label className="attributes-label-inv">Product Attributes (Optional)</label>
+                  {attributeInputs.map((attr, index) => (
+                    <div key={index} className="attribute-input-row-inv">
+                      <input
+                        type="text"
+                        placeholder="Attribute Key (e.g., weight)"
+                        value={attr.key}
+                        onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
+                        className="modal-input-inv attribute-key-inv"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Value (e.g., 5kg)"
+                        value={attr.value}
+                        onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
+                        className="modal-input-inv attribute-value-inv"
+                      />
+                      {attributeInputs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeAttributeInput(index)}
+                          className="remove-attribute-btn-inv"
+                          title="Remove attribute"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addAttributeInput}
+                    className="add-attribute-btn-inv"
+                  >
+                    + Add Another Attribute
+                  </button>
+                </div>
+
                 <div className="modal-actions-inv">
                   <button type="submit" className="submit-btn-inv">Update Product</button>
                   <button 
