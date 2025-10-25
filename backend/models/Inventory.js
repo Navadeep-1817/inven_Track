@@ -1,27 +1,12 @@
 // src/models/Inventory.js
 const mongoose = require("mongoose");
 
-const inventorySchema = new mongoose.Schema(
+// Schema for individual products
+const productSchema = new mongoose.Schema(
   {
-    pid: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    brand: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
+    pid: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, trim: true },
     pCategory: {
       type: String,
       required: true,
@@ -40,48 +25,33 @@ const inventorySchema = new mongoose.Schema(
         "other",
       ],
     },
-
-    pSubCat: {
-      type: String,
-      trim: true,
-      default: "general",
-    },
-    
+    pSubCat: { type: String, trim: true, default: "general" },
     attributes: {
       type: Map,
       of: String,
       default: {},
-      example: {
-        size: "M",
-        color: "Red",
-        capacity: "2L",
-        material: "Stainless Steel",
-      },
     },
+    price: { type: Number, required: true, min: 0 },
+    quantity: { type: Number, required: true, default: 0, min: 0 },
+    lastUpdated: { type: Date, default: Date.now },
+  },
+  { _id: false } // prevent automatic _id for each product
+);
 
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-
-    quantity: {
-      type: Number,
-      required: true,
-      default: 0,
-      min: 0,
-    },
-
-    lastUpdated: {
-      type: Date,
-      default: Date.now,
-    },
+// Schema for branch inventory
+const inventorySchema = new mongoose.Schema(
+  {
+    branchId: { type: String, required: true, unique: true, trim: true },
+    inventoryItems: { type: [productSchema], default: [] },
   },
   { timestamps: true }
 );
 
+// Pre-save hook to update lastUpdated for all items
 inventorySchema.pre("save", function (next) {
-  this.lastUpdated = Date.now();
+  this.inventoryItems.forEach((item) => {
+    item.lastUpdated = Date.now();
+  });
   next();
 });
 

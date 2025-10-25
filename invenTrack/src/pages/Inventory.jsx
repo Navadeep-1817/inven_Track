@@ -27,6 +27,15 @@ const Inventory = () => {
     };
     fetchInventory();
   }, []);
+  useEffect(() => {
+    axios.interceptors.request.use((config) => {
+      const token = localStorage.getItem("token");
+      console.log("🧩 Token attached to request:", token); // Debug
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+  }, []);
+
 
   // Handle search and filter
   useEffect(() => {

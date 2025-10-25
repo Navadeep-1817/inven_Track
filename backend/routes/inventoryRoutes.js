@@ -1,20 +1,22 @@
+// inventoryRoutes.js
 const express = require("express");
+const router = express.Router();
 const {
+  getBranchInventory,
   addProduct,
-  getAllProducts,
-  getProductById,
   updateProduct,
   deleteProduct,
 } = require("../controllers/inventoryController");
 
-const router = express.Router();
+const { protect, managerOrSuperadmin } = require("../middleware/authMiddleware");
 
-// ✅ Define all routes
+router.use(protect);
+router.use(managerOrSuperadmin);
+
+// Remove optional `?` from path
+router.get("/:branchId", getBranchInventory);
 router.post("/", addProduct);
-router.get("/", getAllProducts);
-router.get("/:pid", getProductById);
-router.put("/:pid", updateProduct);
-router.delete("/:pid", deleteProduct);
+router.put("/:branchId/:pid", updateProduct);
+router.delete("/:branchId/:pid", deleteProduct);
 
-// ✅ export router correctly (this fixes your error)
 module.exports = router;
