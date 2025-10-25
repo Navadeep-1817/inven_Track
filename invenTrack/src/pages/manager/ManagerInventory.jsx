@@ -1,11 +1,9 @@
-// src/components/SuperAdminInventory.jsx
+// src/components/ManagerInventory.jsx
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../utils/axiosInstance";
-import '../styles/Inventory.css';
+import axiosInstance from "../../utils/axiosInstance";
+import "../../styles/ManagerInventory.css";
 
-const Inventory = () => {
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState("");
+const ManagerInventory = () => {
   const [inventory, setInventory] = useState([]);
   const [filteredInventory, setFilteredInventory] = useState([]);
   const [search, setSearch] = useState("");
@@ -15,6 +13,7 @@ const Inventory = () => {
     pSubCat: "all",
     priceRange: [0, 100000],
   });
+  const [userBranch, setUserBranch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -34,75 +33,44 @@ const Inventory = () => {
     attributes: {},
   });
 
-  // 🧩 Fetch branches on mount
+  // Fetch manager's branch and inventory
   useEffect(() => {
-    const fetchBranches = async () => {
+    const fetchManagerInventory = async () => {
       try {
         setLoading(true);
         setError("");
         
-        const branchRes = await axiosInstance.get("/branches");
-        setBranches(branchRes.data);
-        
-        // Auto-select first branch if available
-        if (branchRes.data.length > 0) {
-          const firstBranchId = branchRes.data[0].branch_id;
-          setSelectedBranch(firstBranchId);
-          await fetchInventory(firstBranchId);
-        }
+        // Get manager's info
+        const userRes = await axiosInstance.get("/auth/me");
+        const { branch_id } = userRes.data;
+        setUserBranch(branch_id);
+
+        // Fetch inventory for manager's branch
+        await fetchInventory(branch_id);
       } catch (err) {
-        console.error("❌ Error fetching branches:", err);
-        setError("Failed to load branches. Please refresh the page.");
+        console.error("❌ Error fetching inventory:", err);
+        setError(err.response?.data?.message || "Failed to load inventory");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBranches();
+    fetchManagerInventory();
   }, []);
 
-  // 🧩 Fetch inventory for selected branch
+  // Fetch inventory
   const fetchInventory = async (branchId) => {
     try {
-      setLoading(true);
-      setError("");
-      
-      if (!branchId) {
-        setInventory([]);
-        setFilteredInventory([]);
-        return;
-      }
-
-      const url = `/inventory/${branchId}`;
-      const res = await axiosInstance.get(url);
-      
+      const res = await axiosInstance.get(`/inventory/${branchId}`);
       setInventory(res.data);
       setFilteredInventory(res.data);
     } catch (err) {
       console.error("❌ Error fetching inventory:", err);
-      setError(err.response?.data?.message || "Failed to load inventory");
-      setInventory([]);
-      setFilteredInventory([]);
-    } finally {
-      setLoading(false);
+      throw err;
     }
   };
 
-  // Handle branch change
-  const handleBranchChange = (branchId) => {
-    setSelectedBranch(branchId);
-    fetchInventory(branchId);
-    // Reset search and filters when changing branch
-    setSearch("");
-    setFilters({
-      pCategory: "all",
-      brand: "all",
-      pSubCat: "all",
-      priceRange: [0, 100000],
-    });
-  };
-
-  // 🧩 Handle search and filters
+  // Handle search and filters
   useEffect(() => {
     let data = [...inventory];
 
@@ -141,7 +109,7 @@ const Inventory = () => {
     setFilteredInventory(data);
   }, [search, filters, inventory]);
 
-  // 🧩 Handle sorting
+  // Handle sorting
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -165,7 +133,7 @@ const Inventory = () => {
     setSortConfig({ key, direction });
   };
 
-  // 🧩 Reset filters
+  // Reset filters
   const resetFilters = () => {
     setSearch("");
     setFilters({
@@ -179,23 +147,16 @@ const Inventory = () => {
   // Add Product
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    
-    if (!selectedBranch) {
-      alert("Please select a branch first");
-      return;
-    }
-
     try {
       setLoading(true);
       await axiosInstance.post("/inventory", {
-        branchId: selectedBranch,
         ...formData,
         price: Number(formData.price),
         quantity: Number(formData.quantity),
       });
       
       // Refresh inventory
-      await fetchInventory(selectedBranch);
+      await fetchInventory(userBranch);
       setShowAddModal(false);
       resetFormData();
       alert("Product added successfully!");
@@ -212,14 +173,14 @@ const Inventory = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await axiosInstance.put(`/inventory/${selectedBranch}/${currentProduct.pid}`, {
+      await axiosInstance.put(`/inventory/${userBranch}/${currentProduct.pid}`, {
         ...formData,
         price: Number(formData.price),
         quantity: Number(formData.quantity),
       });
       
       // Refresh inventory
-      await fetchInventory(selectedBranch);
+      await fetchInventory(userBranch);
       setShowEditModal(false);
       setCurrentProduct(null);
       resetFormData();
@@ -238,10 +199,10 @@ const Inventory = () => {
     
     try {
       setLoading(true);
-      await axiosInstance.delete(`/inventory/${selectedBranch}/${pid}`);
+      await axiosInstance.delete(`/inventory/${userBranch}/${pid}`);
       
       // Refresh inventory
-      await fetchInventory(selectedBranch);
+      await fetchInventory(userBranch);
       alert("Product deleted successfully!");
     } catch (err) {
       console.error("❌ Error deleting product:", err);
@@ -298,19 +259,13 @@ const Inventory = () => {
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  // Get branch name
-  const getBranchName = () => {
-    const branch = branches.find(b => b.branch_id === selectedBranch);
-    return branch ? branch.branch_name : "";
-  };
-
   // Loading state
-  if (loading && inventory.length === 0 && branches.length === 0) {
+  if (loading && inventory.length === 0) {
     return (
-      <div className="inventory-container-inv">
-        <div className="inventory-wrapper-inv">
-          <div className="loading-spinner-inv">
-            <div className="spinner-inv"></div>
+      <div className="inventory-container-man-inv">
+        <div className="inventory-wrapper-man-inv">
+          <div className="loading-spinner-man-inv">
+            <div className="spinner-man-inv"></div>
             <p>Loading inventory...</p>
           </div>
         </div>
@@ -319,184 +274,152 @@ const Inventory = () => {
   }
 
   return (
-    <div className="inventory-container-inv">
-      <div className="inventory-wrapper-inv">
-
-        {/* Header with Branch Selector */}
-        <div className="inventory-header-inv">
-          <div>
-            {selectedBranch && (
-              <p className="branch-info-inv">
-                Managing: <strong>{getBranchName()} ({selectedBranch})</strong>
-              </p>
-            )}
-          </div>
-          <button 
-            className="add-product-btn-inv" 
-            onClick={() => setShowAddModal(true)}
-            disabled={!selectedBranch}
-          >
+    <div className="inventory-container-man-inv">
+      <div className="inventory-wrapper-man-inv">
+        
+        {/* Header */}
+        <div className="inventory-header-man-inv">
+          <h2 className="inventory-title-man-inv">My Branch Inventory</h2>
+          <p className="branch-info-man-inv">Branch ID: <strong>{userBranch}</strong></p>
+          <button className="add-product-btn-man-inv" onClick={() => setShowAddModal(true)}>
              Add New Product
           </button>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="error-message-inv">
-            <span className="error-icon-inv">⚠️</span>
+          <div className="error-message-man-inv">
+            <span className="error-icon-man-inv">⚠️</span>
             {error}
           </div>
         )}
 
-        {/* Branch Selector */}
-        <div className="branch-selector-inv">
-          <label className="branch-label-inv">Select Branch:</label>
+        {/* Stats Cards */}
+        <div className="stats-container-man-inv">
+          <div className="stat-card-man-inv">
+            <div className="stat-content-man-inv">
+              <p className="stat-label-man-inv">Total Products</p>
+              <p className="stat-value-man-inv">{inventory.length}</p>
+            </div>
+          </div>
+          <div className="stat-card-man-inv">
+            <div className="stat-content-man-inv">
+              <p className="stat-label-man-inv">Filtered Results</p>
+              <p className="stat-value-man-inv">{filteredInventory.length}</p>
+            </div>
+          </div>
+          <div className="stat-card-man-inv">
+            <div className="stat-content-man-inv">
+              <p className="stat-label-man-inv">Categories</p>
+              <p className="stat-value-man-inv">{categories.length - 1}</p>
+            </div>
+          </div>
+          <div className="stat-card-man-inv">
+            <div className="stat-content-man-inv">
+              <p className="stat-label-man-inv">Total Value</p>
+              <p className="stat-value-man-inv">
+                ₹{filteredInventory
+                  .reduce((sum, item) => {
+                    const price = Number(item.price) || 0;
+                    const quantity = Number(item.quantity) || 0;
+                    return sum + (price * quantity);
+                  }, 0)
+                  .toLocaleString('en-IN')}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Reset */}
+        <div className="search-reset-container-man-inv">
+          <div className="search-container-man-inv">
+            <input
+              type="text"
+              placeholder="Search by name, brand, PID, or sub-category..."
+              className="search-input-man-inv"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <button className="reset-btn-man-inv" onClick={resetFilters}>
+         Reset Filters
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="filters-container-man-inv">
           <select
-            value={selectedBranch}
-            onChange={(e) => handleBranchChange(e.target.value)}
-            className="filter-select-inv branch-select-inv"
+            value={filters.pCategory}
+            onChange={(e) =>
+              setFilters({ ...filters, pCategory: e.target.value })
+            }
+            className="filter-select-man-inv"
           >
-            <option value="">Choose a Branch</option>
-            {branches.map((b) => (
-              <option key={b._id} value={b.branch_id}>
-                {b.branch_name} ({b.branch_id})
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c === "all" ? "All Categories" : c.replace(/_/g, " ").toUpperCase()}
               </option>
             ))}
           </select>
+
+          <select
+            value={filters.brand}
+            onChange={(e) =>
+              setFilters({ ...filters, brand: e.target.value })
+            }
+            className="filter-select-man-inv"
+          >
+            {brands.map((b) => (
+              <option key={b} value={b}>
+                {b === "all" ? "All Brands" : b}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={filters.pSubCat}
+            onChange={(e) =>
+              setFilters({ ...filters, pSubCat: e.target.value })
+            }
+            className="filter-select-man-inv"
+          >
+            {subCats.map((s) => (
+              <option key={s} value={s}>
+                {s === "all" ? "All Sub-Categories" : s.replace(/_/g, " ").toUpperCase()}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            placeholder="Min Price (₹)"
+            className="filter-input-man-inv"
+            value={filters.priceRange[0]}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                priceRange: [Number(e.target.value), filters.priceRange[1]],
+              })
+            }
+          />
+          <input
+            type="number"
+            placeholder="Max Price (₹)"
+            className="filter-input-man-inv"
+            value={filters.priceRange[1]}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                priceRange: [filters.priceRange[0], Number(e.target.value)],
+              })
+            }
+          />
         </div>
 
-        {/* Stats Cards */}
-        {selectedBranch && (
-          <div className="stats-container-inv">
-            <div className="stat-card-inv">
-              <div className="stat-content-inv">
-                <p className="stat-label-inv">Total Products</p>
-                <p className="stat-value-inv">{inventory.length}</p>
-              </div>
-            </div>
-            <div className="stat-card-inv">
-              <div className="stat-content-inv">
-                <p className="stat-label-inv">Filtered Results</p>
-                <p className="stat-value-inv">{filteredInventory.length}</p>
-              </div>
-            </div>
-            <div className="stat-card-inv">
-              <div className="stat-content-inv">
-                <p className="stat-label-inv">Categories</p>
-                <p className="stat-value-inv">{categories.length - 1}</p>
-              </div>
-            </div>
-            <div className="stat-card-inv">
-              <div className="stat-content-inv">
-                <p className="stat-label-inv">Total Value</p>
-                <p className="stat-value-inv">
-                  ₹{filteredInventory
-                    .reduce((sum, item) => {
-                      const price = Number(item.price) || 0;
-                      const quantity = Number(item.quantity) || 0;
-                      return sum + (price * quantity);
-                    }, 0)
-                    .toLocaleString('en-IN')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Search & Reset */}
-        {selectedBranch && (
-          <>
-            <div className="search-reset-container-inv">
-              <div className="search-container-inv">
-                <input
-                  type="text"
-                  placeholder="Search by name, brand, PID, or sub-category..."
-                  className="search-input-inv"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <button className="reset-btn-inv" onClick={resetFilters}>
-                 Reset Filters
-              </button>
-            </div>
-
-            {/* Filters */}
-            <div className="filters-container-inv">
-              <select
-                value={filters.pCategory}
-                onChange={(e) =>
-                  setFilters({ ...filters, pCategory: e.target.value })
-                }
-                className="filter-select-inv"
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c === "all" ? "All Categories" : c.replace(/_/g, " ").toUpperCase()}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filters.brand}
-                onChange={(e) =>
-                  setFilters({ ...filters, brand: e.target.value })
-                }
-                className="filter-select-inv"
-              >
-                {brands.map((b) => (
-                  <option key={b} value={b}>
-                    {b === "all" ? "All Brands" : b}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filters.pSubCat}
-                onChange={(e) =>
-                  setFilters({ ...filters, pSubCat: e.target.value })
-                }
-                className="filter-select-inv"
-              >
-                {subCats.map((s) => (
-                  <option key={s} value={s}>
-                    {s === "all" ? "All Sub-Categories" : s.replace(/_/g, " ").toUpperCase()}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="number"
-                placeholder="Min Price (₹)"
-                className="filter-input-inv"
-                value={filters.priceRange[0]}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    priceRange: [Number(e.target.value), filters.priceRange[1]],
-                  })
-                }
-              />
-              <input
-                type="number"
-                placeholder="Max Price (₹)"
-                className="filter-input-inv"
-                value={filters.priceRange[1]}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    priceRange: [filters.priceRange[0], Number(e.target.value)],
-                  })
-                }
-              />
-            </div>
-          </>
-        )}
-
         {/* Inventory Table */}
-        {selectedBranch && filteredInventory.length > 0 ? (
-          <div className="table-container-inv">
-            <table className="inventory-table-inv">
+        {filteredInventory.length > 0 ? (
+          <div className="table-container-man-inv">
+            <table className="inventory-table-man-inv">
               <thead>
                 <tr>
                   <th onClick={() => handleSort("pid")}>
@@ -512,7 +435,6 @@ const Inventory = () => {
                     Category {getSortIcon("pCategory")}
                   </th>
                   <th>Sub-Category</th>
-                  <th>Attributes</th>
                   <th onClick={() => handleSort("price")}>
                     Price {getSortIcon("price")}
                   </th>
@@ -526,42 +448,22 @@ const Inventory = () => {
               <tbody>
                 {filteredInventory.map((item, index) => (
                   <tr key={item.pid} style={{ animationDelay: `${index * 0.05}s` }}>
-                    <td className="pid-cell-inv">{item.pid}</td>
-                    <td className="name-cell-inv">{item.name}</td>
+                    <td className="pid-cell-man-inv">{item.pid}</td>
+                    <td className="name-cell-man-inv">{item.name}</td>
                     <td>{item.brand}</td>
                     <td>
-                      <span className="category-badge-inv">
+                      <span className="category-badge-man-inv">
                         {item.pCategory.replace(/_/g, " ")}
                       </span>
                     </td>
                     <td>{item.pSubCat?.replace(/_/g, " ") || "-"}</td>
-                    <td className="attributes-cell-inv">
-                      {item.attributes && Object.keys(item.attributes).length > 0 ? (
-                        <div className="attributes-list-inv">
-                          {Object.entries(item.attributes)
-                            .slice(0, 3)
-                            .map(([k, v]) => (
-                              <span key={k} className="attribute-tag-inv">
-                                {k}: {v}
-                              </span>
-                            ))}
-                          {Object.keys(item.attributes).length > 3 && (
-                            <span className="attribute-more-inv">
-                              +{Object.keys(item.attributes).length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td className="price-cell-inv">₹{item.price.toLocaleString()}</td>
-                    <td className="quantity-cell-inv">
-                      <span className={`quantity-badge-inv ${item.quantity < 50 ? "low" : ""}`}>
+                    <td className="price-cell-man-inv">₹{item.price.toLocaleString()}</td>
+                    <td className="quantity-cell-man-inv">
+                      <span className={`quantity-badge-man-inv ${item.quantity < 50 ? "low" : ""}`}>
                         {item.quantity}
                       </span>
                     </td>
-                    <td className="date-cell-inv">
+                    <td className="date-cell-man-inv">
                       {item.lastUpdated
                         ? new Date(item.lastUpdated).toLocaleDateString("en-IN", {
                             year: "numeric",
@@ -570,16 +472,16 @@ const Inventory = () => {
                           })
                         : "-"}
                     </td>
-                    <td className="actions-cell-inv">
+                    <td className="actions-cell-man-inv">
                       <button 
-                        className="edit-btn-inv" 
+                        className="edit-btn-man-inv" 
                         onClick={() => openEditModal(item)}
                         title="Edit"
                       >
                         Edit
                       </button>
                       <button 
-                        className="delete-btn-inv" 
+                        className="delete-btn-man-inv" 
                         onClick={() => handleDeleteProduct(item.pid)}
                         title="Delete"
                       >
@@ -592,60 +494,58 @@ const Inventory = () => {
             </table>
           </div>
         ) : (
-          <div className="empty-state-inv">
-            <div className="empty-icon-inv">📭</div>
+          <div className="empty-state-man-inv">
+            <div className="empty-icon-man-inv">📭</div>
             <h3>No Products Found</h3>
             <p>
-              {!selectedBranch
-                ? "Please select a branch to view inventory"
-                : search || filters.pCategory !== "all" || filters.brand !== "all"
+              {search || filters.pCategory !== "all" || filters.brand !== "all"
                 ? "Try adjusting your search or filters"
-                : "This branch has no inventory yet. Click 'Add New Product' to get started."}
+                : "Start by adding products to your branch inventory"}
             </p>
           </div>
         )}
 
         {/* Add Product Modal */}
         {showAddModal && (
-          <div className="modal-overlay-inv" onClick={() => setShowAddModal(false)}>
-            <div className="modal-content-inv" onClick={(e) => e.stopPropagation()}>
-              <h2>Add New Product to {getBranchName()}</h2>
+          <div className="modal-overlay-man-inv" onClick={() => setShowAddModal(false)}>
+            <div className="modal-content-man-inv" onClick={(e) => e.stopPropagation()}>
+              <h2>Add New Product</h2>
               <form onSubmit={handleAddProduct}>
                 <input
                   type="text"
                   name="pid"
-                  placeholder="Product ID *"
+                  placeholder="Product ID"
                   value={formData.pid}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
                   name="name"
-                  placeholder="Product Name *"
+                  placeholder="Product Name"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
                   name="brand"
-                  placeholder="Brand *"
+                  placeholder="Brand"
                   value={formData.brand}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
                   name="pCategory"
-                  placeholder="Category (e.g., electronics) *"
+                  placeholder="Category (e.g., electronics)"
                   value={formData.pCategory}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
@@ -653,34 +553,31 @@ const Inventory = () => {
                   placeholder="Sub-Category (optional)"
                   value={formData.pSubCat}
                   onChange={handleInputChange}
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="number"
                   name="price"
-                  placeholder="Price *"
+                  placeholder="Price"
                   value={formData.price}
                   onChange={handleInputChange}
                   required
-                  min="0"
-                  step="0.01"
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="number"
                   name="quantity"
-                  placeholder="Quantity *"
+                  placeholder="Quantity"
                   value={formData.quantity}
                   onChange={handleInputChange}
                   required
-                  min="0"
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
-                <div className="modal-actions-inv">
-                  <button type="submit" className="submit-btn-inv">Add Product</button>
+                <div className="modal-actions-man-inv">
+                  <button type="submit" className="submit-btn-man-inv">Add Product</button>
                   <button 
                     type="button" 
-                    className="cancel-btn-inv" 
+                    className="cancel-btn-man-inv" 
                     onClick={() => {
                       setShowAddModal(false);
                       resetFormData();
@@ -696,9 +593,9 @@ const Inventory = () => {
 
         {/* Edit Product Modal */}
         {showEditModal && (
-          <div className="modal-overlay-inv" onClick={() => setShowEditModal(false)}>
-            <div className="modal-content-inv" onClick={(e) => e.stopPropagation()}>
-              <h2>Edit Product in {getBranchName()}</h2>
+          <div className="modal-overlay-man-inv" onClick={() => setShowEditModal(false)}>
+            <div className="modal-content-man-inv" onClick={(e) => e.stopPropagation()}>
+              <h2>Edit Product</h2>
               <form onSubmit={handleEditProduct}>
                 <input
                   type="text"
@@ -706,34 +603,34 @@ const Inventory = () => {
                   placeholder="Product ID"
                   value={formData.pid}
                   disabled
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
                   name="name"
-                  placeholder="Product Name *"
+                  placeholder="Product Name"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
                   name="brand"
-                  placeholder="Brand *"
+                  placeholder="Brand"
                   value={formData.brand}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
                   name="pCategory"
-                  placeholder="Category *"
+                  placeholder="Category"
                   value={formData.pCategory}
                   onChange={handleInputChange}
                   required
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="text"
@@ -741,34 +638,31 @@ const Inventory = () => {
                   placeholder="Sub-Category (optional)"
                   value={formData.pSubCat}
                   onChange={handleInputChange}
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="number"
                   name="price"
-                  placeholder="Price *"
+                  placeholder="Price"
                   value={formData.price}
                   onChange={handleInputChange}
                   required
-                  min="0"
-                  step="0.01"
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
                 <input
                   type="number"
                   name="quantity"
-                  placeholder="Quantity *"
+                  placeholder="Quantity"
                   value={formData.quantity}
                   onChange={handleInputChange}
                   required
-                  min="0"
-                  className="modal-input-inv"
+                  className="modal-input-man-inv"
                 />
-                <div className="modal-actions-inv">
-                  <button type="submit" className="submit-btn-inv">Update Product</button>
+                <div className="modal-actions-man-inv">
+                  <button type="submit" className="submit-btn-man-inv">Update Product</button>
                   <button 
                     type="button" 
-                    className="cancel-btn-inv" 
+                    className="cancel-btn-man-inv" 
                     onClick={() => {
                       setShowEditModal(false);
                       setCurrentProduct(null);
@@ -787,4 +681,4 @@ const Inventory = () => {
   );
 };
 
-export default Inventory;
+export default ManagerInventory;

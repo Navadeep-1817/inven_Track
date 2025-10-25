@@ -1,15 +1,3 @@
-// const express = require("express");
-// const { signup, loginEmployee, loginSuperAdmin ,getMe} = require("../controllers/AuthController");
-
-// const router = express.Router();
-
-// router.post("/signup", signup);
-// router.post("/login-employee", loginEmployee);
-// router.post("/login-superadmin", loginSuperAdmin);
-// router.post("/me", getMe);
-
-// module.exports = router;
-// src/routes/authRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -22,10 +10,10 @@ const { protect } = require("../middleware/authMiddleware");
 
 // Public routes
 router.post("/signup", signup);
-router.post("/login", loginEmployee);
-router.post("/superadmin/login", loginSuperAdmin);
+router.post("/login-employee", loginEmployee);        // ✅ Changed from "/login"
+router.post("/login-superadmin", loginSuperAdmin);    // ✅ Changed from "/superadmin/login"
 
-// Protected route - Get current user
+// Protected route
 router.get("/me", protect, getMe);
 
 module.exports = router;

@@ -1,31 +1,35 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import LandingNavbar from "./components/LandingNavbar";
-import Landing from "./pages/Landing";
-import Home from "./pages/Home";
-import Inventory from "./pages/Inventory";
-import Invoice from "./pages/Invoice";
-import Reports from "./pages/Reports";
-import Staff from "./pages/Staff";
-import AboutUs from "./pages/AboutUs";
-import Logout from "./pages/Logout";
-import Footer from "./components/Footer";
-import Login from "./pages/Login";
-import Signup from "./pages/SignUp";
-import Dashboard from "./pages/Dashboard";
-import Branch from "./pages/Branch";
-import Attendance from "./pages/manager/Attendance";
-import ManagerStaff from "./pages/manager/ManagerStaff";
 
-// ✅ Dashboards
-import ManagerDashboard from "./pages/ManagerDashboard";
-import SuperAdminDashboard from "./pages/superAdminDashboard";
-import StaffDashboard from "./pages/staffDashboard";
+// Import components
+import Navbar from "./components/Navbar.jsx";
+import LandingNavbar from "./components/LandingNavbar.jsx";
+import Landing from "./pages/Landing.jsx";
+import Home from "./pages/Home.jsx";
+import Inventory from "./pages/Inventory.jsx";
+import Invoice from "./pages/Invoice.jsx";
+import Reports from "./pages/Reports.jsx";
+import Staff from "./pages/Staff.jsx";
+import AboutUs from "./pages/AboutUs.jsx";
+import Logout from "./pages/Logout.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/SignUp.jsx";
+import Dashboard from "./pages/DashBoard.jsx";
+import Branch from "./pages/Branch.jsx";
 
-// ✅ Navbars
-import ManagerNavbar from "./components/ManagerNavbar";
-import StaffNavbar from "./components/StaffNavbar";
+// Import Manager pages
+import Attendance from "./pages/manager/Attendance.jsx";
+import ManagerStaff from "./pages/manager/ManagerStaff.jsx";
+import ManageInventory from "./pages/manager/ManagerInventory.jsx";
+
+// Import Dashboards
+import ManagerDashboard from "./pages/ManagerDashboard.jsx";
+import SuperAdminDashboard from "./pages/superAdminDashboard.jsx";
+import StaffDashboard from "./pages/staffDashboard.jsx";
+
+// Import Role-specific Navbars
+import ManagerNavbar from "./components/ManagerNavbar.jsx";
+import StaffNavbar from "./components/StaffNavbar.jsx";
 
 function App() {
   return (
@@ -55,7 +59,7 @@ function App() {
             }
           />
 
-          {/* Global Navbar + Footer */}
+          {/* Global Navbar + Footer (SuperAdmin/Default) */}
           <Route
             path="/*"
             element={
@@ -64,6 +68,7 @@ function App() {
                 <Routes>
                   <Route path="/home" element={<Home />} />
                   <Route path="/superAdminDashboard" element={<SuperAdminDashboard />} />
+                  {/* Note: /staffDashboard is defined below with its own navbar. This route might be redundant or intended as a fallback. */}
                   <Route path="/staffDashboard" element={<StaffDashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/inventory" element={<Inventory />} />
@@ -74,38 +79,40 @@ function App() {
                   <Route path="/aboutus" element={<AboutUs />} />
                   <Route path="/logout" element={<Logout />} />
                 </Routes>
-                
+                {/* Footer might be conditionally rendered based on route */}
               </>
             }
           />
 
-          {/* ✅ Manager Routes */}
+          {/* Manager Routes */}
           <Route
             path="/managerDashboard/*"
             element={
               <>
                 <ManagerNavbar />
                 <Routes>
-                  <Route index element={<ManagerDashboard />} /> {/* default */}
-                  <Route path="/attendance" element={<Attendance />} />
-                  <Route path="/managerstaff" element={<ManagerStaff/>}/>
-                  <Route path="/aboutUs" element={<AboutUs />} />
+                  <Route index element={<ManagerDashboard />} /> {/* Default route for /managerDashboard */}
+                  <Route path="attendance" element={<Attendance />} />
+                  <Route path="managerstaff" element={<ManagerStaff />} />
+                  <Route path="managerInventory" element={<ManageInventory />} />
+                  <Route path="aboutUs" element={<AboutUs />} />
                 </Routes>
-                
+                {/* Manager-specific footer? */}
               </>
             }
           />
 
-          {/* ✅ Staff Routes */}
+          {/* Staff Routes */}
           <Route
             path="/staffDashboard/*"
             element={
               <>
                 <StaffNavbar />
                 <Routes>
-                  <Route index element={<StaffDashboard />} />
+                  <Route index element={<StaffDashboard />} /> {/* Default route for /staffDashboard */}
+                  {/* Add other staff-specific routes here */}
                 </Routes>
-                <Footer />
+      
               </>
             }
           />
@@ -116,3 +123,4 @@ function App() {
 }
 
 export default App;
+
