@@ -1,100 +1,445 @@
-/* Attendance.css - Professional & Modern Design */
-
+/* === Attendance Management - Modern White Theme === */
 .attendance-container-att {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  background: #ffffff;
+  padding: 2rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
 .attendance-header-att {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  margin-bottom: 2rem;
+  background: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
 }
 
 .attendance-title-att {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1a202c;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1e293b;
   margin: 0;
-  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .attendance-date-att {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
-  color: #4a5568;
-  font-weight: 500;
-  background: #f7fafc;
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
-}
-
-.date-icon-att {
-  font-size: 1.25rem;
-}
-
-/* Loading State */
-.loading-att {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  font-size: 1.5rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
   color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
   font-weight: 600;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
 }
 
-/* Alert Messages */
+.date-icon-att::before {
+  content: "📅";
+  font-size: 1.1rem;
+}
+
+/* Buttons */
+.submit-attendance-btn-att {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-attendance-btn-att::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.submit-attendance-btn-att:hover::before {
+  left: 100%;
+}
+
+.submit-attendance-btn-att:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.submit-attendance-btn-att:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.submit-attendance-btn-att:disabled::before {
+  display: none;
+}
+
+/* Alerts */
 .attendance-alerts-att {
   margin-bottom: 1.5rem;
 }
 
-.error-message-att,
-.success-message-att {
+.error-message-att, .success-message-att {
   padding: 1rem 1.5rem;
   border-radius: 12px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-weight: 500;
-  animation: slideDown 0.3s ease-out;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid;
 }
 
 .error-message-att {
-  background: #fff5f5;
-  color: #c53030;
-  border-left: 4px solid #fc8181;
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 .success-message-att {
-  background: #f0fff4;
-  color: #22543d;
-  border-left: 4px solid #48bb78;
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
 }
 
 .alert-icon-att {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 
-@keyframes slideDown {
+/* Table Container */
+.attendance-table-container-att {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.attendance-table-container-att:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.attendance-table-att {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-thead-att {
+  background: rgba(53, 112, 250, 0.941)
+}
+
+.attendance-th-att {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-weight: 700;
+  color: white;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.attendance-tbody-att .attendance-tr-att {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.attendance-tbody-att .attendance-tr-att:last-child {
+  border-bottom: none;
+}
+
+.attendance-tbody-att .attendance-tr-att:hover {
+  background: #f8fafc;
+  transform: translateX(4px);
+}
+
+.attendance-td-att {
+  padding: 1.25rem 1.5rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.row-even-att {
+  background: #ffffff;
+}
+
+.row-odd-att {
+  background: #f8fafc;
+}
+
+/* Staff Info */
+.staff-name-att {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.staff-avatar-att {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.staff-role-badge-att {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Status Select */
+.status-cell-att {
+  text-align: center;
+}
+
+.status-select-att {
+  padding: 0.6rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.status-select-att:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.status-select-att:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.status-present-att {
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.status-absent-att {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.option-present-att {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.option-absent-att {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Submit Section */
+.submit-container-att {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+}
+
+.staff-count-att {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+}
+
+/* Loading States */
+.loading-att {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+  font-weight: 600;
+  gap: 1rem;
+}
+
+.spinner-att {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f1f5f9;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin-att 1s linear infinite;
+}
+
+.loading-spinner-att {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin-att 1s linear infinite;
+}
+
+@keyframes spin-att {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* No Staff Message */
+.no-staff-message-att {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+}
+
+.no-staff-message-att p {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Percentage Colors for Report */
+.percentage-excellent {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+  border: 1px solid #bbf7d0;
+}
+
+.percentage-good {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border: 1px solid #bfdbfe;
+}
+
+.percentage-fair {
+  background: #fffbeb !important;
+  color: #d97706 !important;
+  border: 1px solid #fed7aa;
+}
+
+.percentage-poor {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .attendance-container-att {
+    padding: 1rem;
+  }
+  
+  .attendance-header-att {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .attendance-title-att {
+    font-size: 1.8rem;
+  }
+  
+  .submit-container-att {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .attendance-table-container-att {
+    overflow-x: auto;
+  }
+  
+  .attendance-th-att,
+  .attendance-td-att {
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .staff-name-att {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance-container-att {
+    padding: 0.75rem;
+  }
+  
+  .attendance-header-att {
+    padding: 1.25rem;
+  }
+  
+  .attendance-title-att {
+    font-size: 1.5rem;
+  }
+  
+  .attendance-date-att {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+  
+  .submit-attendance-btn-att {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -102,24 +447,27 @@
   }
 }
 
-/* Form Container */
-.attendance-form-att {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+.attendance-table-container-att,
+.attendance-header-att,
+.submit-container-att {
+  animation: fadeInUp 0.6s ease-out;
 }
 
-/* Table Container */
+/* Focus states for accessibility */
+.status-select-att:focus,
+.submit-attendance-btn-att:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
 
-
+/* Custom scrollbar for table container */
 .attendance-table-container-att::-webkit-scrollbar {
-  width: 8px;
   height: 8px;
 }
 
 .attendance-table-container-att::-webkit-scrollbar-track {
   background: #f1f5f9;
+  border-radius: 4px;
 }
 
 .attendance-table-container-att::-webkit-scrollbar-thumb {
@@ -131,262 +479,35 @@
   background: #94a3b8;
 }
 
-/* Table Styles */
-.attendance-table-att {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.attendance-thead-att {
-  background: linear-gradient(135deg, #667eea 0%, #687bd8 100%);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.attendance-th-att {
-  padding: 1.25rem 1.5rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.name-header-att {
-  width: 60%;
-}
-
-.status-header-att {
-  width: 40%;
-}
-
-.attendance-tbody-att {
-  background: white;
-}
-
+/* Hover effects for table rows */
 .attendance-tr-att {
-  border-bottom: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
-.row-even-att {
-  background: #ffffff;
-}
-
-.row-odd-att {
-  background: #f8fafc;
-}
-
-
-
-.attendance-td-att {
-  padding: 1.25rem 1.5rem;
-  font-size: 1rem;
-  color: #2d3748;
-}
-
-.staff-name-att {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 500;
-}
-
-.staff-avatar-att {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #4d4af2 0%, #4b67a2 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-.status-cell-att {
-  padding: 1rem 1.5rem;
-}
-
-/* Status Select */
-.status-select-att {
-  width: 100%;
-  max-width: 200px;
-  padding: 0.75rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: rgb(83, 65, 240);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%234a5568' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 2.5rem;
-}
-
-.status-select-att:hover {
-  border-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.status-select-att:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.status-present-att {
-  color: #22543d;
-  border-color: #48bb78;
-  background-color: #f0fff4;
-}
-
-.status-absent-att {
-  color: #c53030;
-  border-color: #fc8181;
-  background-color: #fff5f5;
-}
-
-/* Submit Container */
-.submit-container-att {
-  padding: 2rem;
-  background: #ffffff;
+/* Report header styling */
+.attendance-report-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  border-top: 2px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 2px solid #f1f5f9;
 }
 
-.submit-attendance-btn-att {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: rgb(14, 13, 13);
-  background: linear-gradient(135deg, #667eea 0%, #8579e3 100%);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+.attendance-report-header h3 {
+  color: #1e293b;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
 }
 
-.submit-attendance-btn-att:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.submit-attendance-btn-att:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.submit-attendance-btn-att:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.submit-icon-att {
-  font-size: 1.25rem;
-}
-
-.loading-spinner-att {
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.staff-count-att {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #4a5568;
-  background: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  border: 2px solid #e2e8f0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .attendance-container-att {
-    padding: 1rem;
-    margin: 1rem auto;
-  }
-
-  .attendance-header-att {
-    padding: 1.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .attendance-title-att {
-    font-size: 1.5rem;
-  }
-
-  .attendance-date-att {
-    font-size: 0.9rem;
-    width: 100%;
-  }
-
-  .attendance-th-att,
-  .attendance-td-att {
-    padding: 1rem;
-  }
-
-  .status-select-att {
-    max-width: 100%;
-  }
-
-  .submit-container-att {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .submit-attendance-btn-att {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .staff-count-att {
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .attendance-title-att {
-    font-size: 1.25rem;
-  }
-
-  .attendance-th-att {
-    font-size: 0.85rem;
-    padding: 0.75rem;
-  }
-
-  .attendance-td-att {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .staff-avatar-att {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-  }
+/* Enhanced status badges in report view */
+.attendance-percentage-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  min-width: 80px;
 }

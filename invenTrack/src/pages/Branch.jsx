@@ -13,12 +13,29 @@ const Branch = () => {
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [currentStaff, setCurrentStaff] = useState([]);
 
-    // Fetch branches
+    const API_BASE = 'http://localhost:5000/api';
+
+    // Get auth token from localStorage
+    const getAuthToken = () => {
+        return localStorage.getItem('token');
+    };
+
+    // Create axios config with auth header
+    const getAuthConfig = () => {
+        const token = getAuthToken();
+        return {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+    };
+
+    // Fetch all branches
     useEffect(() => {
         const fetchBranches = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:5000/api/branches');
+                const response = await axios.get(`${API_BASE}/branches`);
                 setBranches(response.data);
                 setError(null);
             } catch (err) {
@@ -30,7 +47,7 @@ const Branch = () => {
         fetchBranches();
     }, []);
 
-    // Create Branch
+    // Create new branch
     const handleCreateBranch = async (e) => {
         e.preventDefault();
         if (!newBranchName || !newBranchId || !newBranchLocation) {
@@ -39,7 +56,7 @@ const Branch = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/api/branches', {
+            const response = await axios.post(`${API_BASE}/branches`, {
                 branch_name: newBranchName,
                 branch_id: newBranchId,
                 branch_location: newBranchLocation,
@@ -54,11 +71,11 @@ const Branch = () => {
         }
     };
 
-    // Delete Branch
+    // Delete branch - NOW WITH AUTH
     const handleDeleteBranch = async (branchId) => {
         if (window.confirm('Are you sure you want to delete this branch and all its staff?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/branches/${branchId}`);
+                await axios.delete(`${API_BASE}/branches/${branchId}`, getAuthConfig());
                 setBranches(branches.filter(branch => branch.branch_id !== branchId));
                 setError(null);
             } catch (err) {
@@ -67,16 +84,19 @@ const Branch = () => {
         }
     };
 
-    // View Branch (fetch staff)
+    // View branch (fetch staff) - FIXED WITH AUTH
     const handleViewBranch = async (branch) => {
         setSelectedBranch(branch);
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/api/staff/branches/${branch.branch_id}/staff`);
+            const response = await axios.get(
+                `${API_BASE}/staff/branches/${branch.branch_id}/staff`,
+                getAuthConfig()
+            );
             setCurrentStaff(response.data);
             setError(null);
         } catch (err) {
-            setError('Failed to fetch staff for this branch.');
+            setError('Failed to fetch staff for this branch. Make sure you are logged in.');
         } finally {
             setLoading(false);
         }
@@ -87,12 +107,12 @@ const Branch = () => {
         setCurrentStaff([]);
     };
 
-    // Remove Staff
+    // Remove staff member - NOW WITH AUTH
     const handleRemoveStaff = async (staffId, staffName) => {
         if (window.confirm(`Are you sure you want to remove ${staffName}?`)) {
             try {
-                await axios.delete(`http://localhost:5000/api/staff/staff/${staffId}`);
-                setCurrentStaff(prevStaff => prevStaff.filter(s => s._id !== staffId));
+                await axios.delete(`${API_BASE}/staff/staff/${staffId}`, getAuthConfig());
+                setCurrentStaff(prev => prev.filter(s => s._id !== staffId));
                 alert(`${staffName} has been removed.`);
             } catch (err) {
                 setError('Failed to remove staff.');
@@ -100,17 +120,24 @@ const Branch = () => {
         }
     };
 
-    // Change Role
+    // Change staff role - NOW WITH AUTH
     const handleChangeRole = async (staffId, currentRole) => {
         const newRole = currentRole === 'Manager' ? 'Staff' : 'Manager';
         if (newRole === 'Manager' && currentStaff.some(s => s.role === 'Manager')) {
             alert('A manager already exists for this branch. Please demote the current manager first.');
             return;
         }
+
         if (window.confirm(`Are you sure you want to change this person's role to ${newRole}?`)) {
             try {
-                const response = await axios.patch(`http://localhost:5000/api/staff/staff/${staffId}`, { role: newRole });
-                setCurrentStaff(prevStaff => prevStaff.map(s => (s._id === staffId ? response.data : s)));
+                const response = await axios.patch(
+                    `${API_BASE}/staff/staff/${staffId}`,
+                    { role: newRole },
+                    getAuthConfig()
+                );
+                setCurrentStaff(prev =>
+                    prev.map(s => (s._id === staffId ? response.data : s))
+                );
             } catch (err) {
                 setError('Failed to change role.');
             }
@@ -192,20 +219,30 @@ const Branch = () => {
                             <ul className="staff-list-abc">
                                 {currentStaff.length > 0 ? currentStaff.map(staff => (
                                     <li key={staff._id} className="staff-item-abc">
-                                        <span>{staff.name} <strong className={`role-abc ${staff.role.toLowerCase()}-abc`}>({staff.role})</strong></span>
+                                        <span>
+                                            {staff.name}{' '}
+                                            <strong className={`role-abc ${staff.role.toLowerCase()}-abc`}>
+                                                ({staff.role})
+                                            </strong>
+                                        </span>
                                         <div className="staff-actions-abc">
                                             {staff.role === 'Manager' ? (
-                                                <button onClick={() => handleChangeRole(staff._id, staff.role)} className="demote-abc">Demote</button>
+                                                <button onClick={() => handleChangeRole(staff._id, staff.role)} className="demote-abc">
+                                                    Demote
+                                                </button>
                                             ) : (
                                                 <button
                                                     onClick={() => handleChangeRole(staff._id, staff.role)}
                                                     className="promote-abc"
                                                     title={hasManager ? "A manager already exists for this branch." : "Promote to Manager"}
+                                                    disabled={hasManager && staff.role !== 'Manager'}
                                                 >
                                                     Promote
                                                 </button>
                                             )}
-                                            <button onClick={() => handleRemoveStaff(staff._id, staff.name)} className="remove-abc">Remove</button>
+                                            <button onClick={() => handleRemoveStaff(staff._id, staff.name)} className="remove-abc">
+                                                Remove
+                                            </button>
                                         </div>
                                     </li>
                                 )) : <p>No staff found for this branch.</p>}
