@@ -10,12 +10,9 @@
       <nav className="main-navbar">
         <div className="navbar-left">
           <div className="logo">InvenTrack</div>    
-          <button onClick={() => navigate("/home")}>Home</button>
-          <button onClick={() => navigate("/dashboard")}>Dashboard</button>
-          <button onClick={() => navigate("/inventory")}>Inventory</button>
-          <button onClick={() => navigate("/invoice")}>Invoice</button>
-          <button onClick={() => navigate("/reports")}>Reports</button>
-          <button onClick={() => navigate("/staff")}>Staff</button>
+          <button onClick={() => navigate("/staffDashboard")}>Home</button>
+          <button onClick={() => navigate("/staffDashboard/staffInventory")}>Inventory</button>
+          <button onClick={() => navigate("/staffDashboard/staffAlerts")}>Alerts</button>
         </div>
         <div className="navbar-right">
           <button onClick={() => navigate("/aboutus")}>About Us</button>

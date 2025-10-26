@@ -99,3 +99,18 @@ exports.managerOrSuperadmin = (req, res, next) => {
   }
   return res.status(403).json({ message: "Access denied." });
 };
+
+/**
+ * 🔸 NEW: Manager, Staff, OR Superadmin access (for viewing inventory)
+ */
+exports.managerStaffOrSuperadmin = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.role === "manager" || 
+     req.user.role === "staff" || 
+     req.user.role === "superadmin")
+  ) {
+    return next();
+  }
+  return res.status(403).json({ message: "Access denied." });
+};

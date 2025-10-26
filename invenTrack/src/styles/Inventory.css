@@ -1,7 +1,7 @@
 /* === SuperAdmin Inventory Page - White Background === */
 .inventory-container-inv {
   min-height: 100vh;
-  background: #ffffff;
+  background: #e7e7fc;
   padding: 2rem;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   color: #1e293b;

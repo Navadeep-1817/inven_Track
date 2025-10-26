@@ -33,6 +33,9 @@ import ManagerNavbar from "./components/ManagerNavbar.jsx";
 import StaffNavbar from "./components/StaffNavbar.jsx";
 import ManagerLowStockAlerts from "./pages/manager/ManagerLowStockAlerts.jsx";
 
+import StaffInventory from "./pages/staff/StaffInventory.jsx";
+import StaffAlerts from "./pages/staff/StaffAlerts.jsx";
+
 function App() {
   return (
     <Router>
@@ -113,8 +116,9 @@ function App() {
               <>
                 <StaffNavbar />
                 <Routes>
-                  <Route index element={<StaffDashboard />} /> {/* Default route for /staffDashboard */}
-                  {/* Add other staff-specific routes here */}
+                  <Route index element={<StaffDashboard />} /> 
+                  <Route path="staffInventory" element={<StaffInventory/>}/>
+                  <Route path="staffAlerts" element={<StaffAlerts/>}/>
                 </Routes>
       
               </>

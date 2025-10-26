@@ -1,26 +1,37 @@
-// inventoryRoutes.js
-const express = require("express");
+// src/routes/inventoryRoutes.js
+const express = require('express');
 const router = express.Router();
+const {
+  protect,
+  managerOrSuperadmin,
+  managerStaffOrSuperadmin,
+  superadminOnly,
+} = require('../middleware/authMiddleware');
 const {
   getBranchInventory,
   getAllInventory,
   addProduct,
   updateProduct,
   deleteProduct,
-} = require("../controllers/inventoryController");
+} = require('../controllers/inventoryController');
 
-const { protect, managerOrSuperadmin, superadminOnly } = require("../middleware/authMiddleware");
+/**
+ * 📦 INVENTORY ROUTES
+ */
 
-// Apply protect to all routes
-router.use(protect);
+// GET all inventory (SuperAdmin only)
+router.get('/all', protect, superadminOnly, getAllInventory);
 
-// Superadmin: get all inventory across branches (MUST be before /:branchId)
-router.get("/all", superadminOnly, getAllInventory);
+// GET inventory by branch ID (Manager, Staff, SuperAdmin can view)
+router.get('/:branchId', protect, managerStaffOrSuperadmin, getBranchInventory);
 
-// All other routes need manager or superadmin
-router.get("/:branchId", managerOrSuperadmin, getBranchInventory);
-router.post("/", managerOrSuperadmin, addProduct);
-router.put("/:branchId/:pid", managerOrSuperadmin, updateProduct);
-router.delete("/:branchId/:pid", managerOrSuperadmin, deleteProduct);
+// POST new product (Manager, SuperAdmin only)
+router.post('/', protect, managerOrSuperadmin, addProduct);
+
+// PUT update product (Manager, SuperAdmin only)
+router.put('/:branchId/:pid', protect, managerOrSuperadmin, updateProduct);
+
+// DELETE product (Manager, SuperAdmin only)
+router.delete('/:branchId/:pid', protect, managerOrSuperadmin, deleteProduct);
 
 module.exports = router;
