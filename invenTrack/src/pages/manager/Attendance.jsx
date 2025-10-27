@@ -346,9 +346,8 @@ function Attendance() {
                         className={`attendance-tr-att ${index % 2 === 0 ? 'row-even-att' : 'row-odd-att'}`}
                       >
                         <td className="attendance-td-att staff-name-att">
-                          <span className="staff-avatar-att">👤</span>
                           {staff.name}
-                          {staff.role && <span className="staff-role-badge-att"> ({staff.role})</span>}
+                          {staff.role && <span className="staff-role-badge-att"> Role:{staff.role}</span>}
                         </td>
                         <td className="attendance-td-att status-cell-att">
                           <select

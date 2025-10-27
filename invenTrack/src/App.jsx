@@ -35,6 +35,7 @@ import ManagerLowStockAlerts from "./pages/manager/ManagerLowStockAlerts.jsx";
 
 import StaffInventory from "./pages/staff/StaffInventory.jsx";
 import StaffAlerts from "./pages/staff/StaffAlerts.jsx";
+import StaffBilling from "./pages/staff/StaffBilling.jsx";
 
 function App() {
   return (
@@ -119,6 +120,7 @@ function App() {
                   <Route index element={<StaffDashboard />} /> 
                   <Route path="staffInventory" element={<StaffInventory/>}/>
                   <Route path="staffAlerts" element={<StaffAlerts/>}/>
+                  <Route path="staffBilling" element={<StaffBilling/>}/>
                 </Routes>
       
               </>

@@ -259,10 +259,7 @@ const ManagerLowStockAlerts = () => {
         {/* Header */}
         <div className="low-stock-header-man-alt">
           <div className="header-content-man-alt">
-            <h1 className="page-title-man-alt">📊 Low Stock Alerts</h1>
-            <p className="page-subtitle-man-alt">
-              {branchInfo ? `${branchInfo.branch_name} (${branchInfo.branch_id})` : "Loading branch..."}
-            </p>
+            <h1 className="page-title-man-alt"> Low Stock Alerts</h1>
           </div>
           <div className="header-actions-man-alt">
             <button className="settings-btn-man-alt" onClick={() => setShowSettings(true)}>
@@ -283,7 +280,6 @@ const ManagerLowStockAlerts = () => {
         {/* Branch Info Banner */}
         {branchInfo && (
           <div className="branch-info-banner-man-alt">
-            <div className="banner-icon-man-alt">🏪</div>
             <div className="banner-content-man-alt">
               <p className="banner-title-man-alt">Your Branch</p>
               <p className="banner-value-man-alt">{branchInfo.branch_name}</p>

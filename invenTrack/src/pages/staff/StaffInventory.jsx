@@ -51,11 +51,7 @@ const StaffInventory = () => {
   // Fetch inventory
   const fetchInventory = async (branchId) => {
     try {
-      console.log(`📦 Fetching inventory for branch: ${branchId}`);
-      
       const res = await axiosInstance.get(`/inventory/${branchId}`);
-      
-      console.log("📊 Raw inventory response:", res.data);
       
       // ✅ The backend returns inventoryItems array directly
       // Check if response is already an array or needs to be extracted
@@ -64,13 +60,11 @@ const StaffInventory = () => {
       // If the response is an object with inventoryItems, extract it
       if (res.data && res.data.inventoryItems && Array.isArray(res.data.inventoryItems)) {
         inventoryData = res.data.inventoryItems;
-        console.log("📦 Extracted inventoryItems array");
       }
       
       // If response is already an array, use it directly
       if (Array.isArray(res.data)) {
         inventoryData = res.data;
-        console.log("📦 Using direct array response");
       }
       
       console.log(`✅ Loaded ${inventoryData.length} products`);
