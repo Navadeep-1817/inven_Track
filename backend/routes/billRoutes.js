@@ -1,129 +1,50 @@
-// ==========================================
-// FIXED billRoutes.js
-// ==========================================
-
+// src/routes/billRoutes.js
 const express = require('express');
 const router = express.Router();
-const billController = require('../controllers/billController');
-const { protect, managerStaffOrSuperadmin, managerOrSuperadmin } = require('../middleware/authMiddleware');
-
-// All routes require authentication
-router.use(protect);
-
-/**
- * @route   POST /api/bills
- * @desc    Create a new bill
- * @access  Staff, Manager, Superadmin
- */
-router.post('/', 
-  managerStaffOrSuperadmin,
-  billController.createBill
-);
-
-/**
- * @route   POST /api/bills/send-email
- * @desc    Send bill via email
- * @access  Staff, Manager, Superadmin
- * NOTE: This must come BEFORE /:billId to avoid route conflict
- */
-router.post('/send-email',
-  managerStaffOrSuperadmin,
-  billController.sendBillEmail
-);
-
-/**
- * @route   GET /api/bills/branch/:branchId/today
- * @desc    Get today's sales summary for a branch
- * @access  Staff, Manager, Superadmin
- * NOTE: This must come BEFORE /branch/:branchId to avoid route conflict
- */
-router.get('/branch/:branchId/today',
-  managerStaffOrSuperadmin,
-  billController.getTodaySales
-);
-
-/**
- * @route   GET /api/bills/branch/:branchId/revenue
- * @desc    Get revenue report for a branch
- * @access  Manager, Superadmin
- * @query   startDate, endDate
- * NOTE: This must come BEFORE /branch/:branchId to avoid route conflict
- */
-router.get('/branch/:branchId/revenue',
+const {
+  protect,
   managerOrSuperadmin,
-  billController.getRevenueReport
-);
-
-/**
- * @route   GET /api/bills/branch/:branchId
- * @desc    Get all bills for a specific branch
- * @access  Staff, Manager, Superadmin
- * @query   page, limit, status, startDate, endDate
- */
-router.get('/branch/:branchId',
   managerStaffOrSuperadmin,
-  billController.getBillsByBranch
-);
+  superadminOnly,
+} = require('../middleware/authMiddleware');
+const {
+  getBranchBills,
+  getAllBills,
+  getBillById,
+  getBillByNumber,
+  createBill,
+  updateBillStatus,
+  getBranchRevenue,
+  getAllRevenue,
+  sendBillEmail
+} = require('../controllers/billController');
 
 /**
- * @route   GET /api/bills/customer/:phone
- * @desc    Get all bills for a customer by phone number
- * @access  Staff, Manager, Superadmin
+ * 🧾 BILL ROUTES
  */
-router.get('/customer/:phone',
-  managerStaffOrSuperadmin,
-  billController.getBillsByCustomer
-);
 
-/**
- * @route   GET /api/bills/staff/:staffId
- * @desc    Get all bills created by a specific staff member
- * @access  Manager, Superadmin
- * @query   startDate, endDate
- */
-router.get('/staff/:staffId',
-  managerOrSuperadmin,
-  billController.getBillsByStaff
-);
+// GET all bills across all branches (SuperAdmin only)
+router.get('/all', protect, superadminOnly, getAllBills);
 
-/**
- * @route   GET /api/bills/number/:billNumber
- * @desc    Get a bill by bill number
- * @access  Staff, Manager, Superadmin
- */
-router.get('/number/:billNumber',
-  managerStaffOrSuperadmin,
-  billController.getBillByNumber
-);
+// GET overall revenue analytics (SuperAdmin only)
+router.get('/revenue/all', protect, superadminOnly, getAllRevenue);
 
-/**
- * @route   GET /api/bills/:billId
- * @desc    Get a single bill by ID
- * @access  Staff, Manager, Superadmin
- */
-router.get('/:billId',
-  managerStaffOrSuperadmin,
-  billController.getBillById
-);
+// GET revenue for a specific branch (Manager, Staff, SuperAdmin can view)
+router.get('/revenue/:branchId', protect, managerStaffOrSuperadmin, getBranchRevenue);
 
-/**
- * @route   PATCH /api/bills/:billId/status
- * @desc    Update bill status (cancel/refund)
- * @access  Manager, Superadmin
- */
-router.patch('/:billId/status',
-  managerOrSuperadmin,
-  billController.updateBillStatus
-);
+// GET bill by bill number (Manager, Staff, SuperAdmin can view)
+router.get('/number/:billNumber', protect, managerStaffOrSuperadmin, getBillByNumber);
 
-/**
- * @route   DELETE /api/bills/:billId
- * @desc    Delete (cancel) a bill
- * @access  Manager, Superadmin
- */
-router.delete('/:billId',
-  managerOrSuperadmin,
-  billController.deleteBill
-);
+// GET bill by ID (Manager, Staff, SuperAdmin can view)
+router.get('/:billId', protect, managerStaffOrSuperadmin, getBillById);
+
+// GET bills by branch ID (Manager, Staff, SuperAdmin can view)
+router.get('/branch/:branchId', protect, managerStaffOrSuperadmin, getBranchBills);
+
+// POST create new bill (Manager, Staff, SuperAdmin can create)
+router.post('/', protect, managerStaffOrSuperadmin, createBill);
+
+// PUT update bill status (Manager, SuperAdmin only - for cancellation/refund)
+router.put('/:billId/status', protect, managerOrSuperadmin, updateBillStatus);
 
 module.exports = router;

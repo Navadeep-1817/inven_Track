@@ -34,4 +34,4 @@ router.put('/:branchId/:pid', protect, managerOrSuperadmin, updateProduct);
 // DELETE product (Manager, SuperAdmin only)
 router.delete('/:branchId/:pid', protect, managerOrSuperadmin, deleteProduct);
 
-module.exports = router;
+module.exports = router;  

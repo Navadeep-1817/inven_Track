@@ -25,7 +25,7 @@ const StaffBilling = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
 
   // Bill Settings
-  const [gstRate, setGstRate] = useState(18); // 18% GST
+  const [gstRate, setGstRate] = useState(18);
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [notes, setNotes] = useState("");
@@ -51,14 +51,34 @@ const StaffBilling = () => {
       
       // Get staff info
       const staffRes = await axiosInstance.get("/auth/me");
-      setStaffInfo(staffRes.data);
+      console.log("📋 Staff Info Response:", staffRes.data);
+      
+      // Format staff info properly for the backend
+      const formattedStaffInfo = {
+        _id: staffRes.data._id || staffRes.data.id,
+        name: staffRes.data.name,
+        role: staffRes.data.role,
+        branch_id: staffRes.data.branch_id
+      };
+      
+      setStaffInfo(formattedStaffInfo);
+      console.log("✅ Formatted Staff Info:", formattedStaffInfo);
       
       const branchId = staffRes.data.branch_id;
       
       // Get branch details
       const branchRes = await axiosInstance.get("/branches");
       const branch = branchRes.data.find(b => b.branch_id === branchId);
-      setBranchInfo(branch);
+      
+      // Format branch info properly
+      const formattedBranchInfo = {
+        branch_id: branch.branch_id,
+        branch_name: branch.branch_name,
+        branch_location: branch.branch_location || ""
+      };
+      
+      setBranchInfo(formattedBranchInfo);
+      console.log("✅ Formatted Branch Info:", formattedBranchInfo);
       
       // Get inventory
       const invRes = await axiosInstance.get(`/inventory/${branchId}`);
@@ -137,18 +157,23 @@ const StaffBilling = () => {
 
   // Calculate totals
   const calculateTotals = () => {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const discountAmount = (subtotal * discount) / 100;
+    const subtotal = cartItems.reduce((sum, item) => {
+      const price = parseFloat(item.price) || 0;
+      const quantity = parseInt(item.quantity) || 0;
+      return sum + (price * quantity);
+    }, 0);
+    
+    const discountAmount = (subtotal * parseFloat(discount || 0)) / 100;
     const taxableAmount = subtotal - discountAmount;
-    const gstAmount = (taxableAmount * gstRate) / 100;
+    const gstAmount = (taxableAmount * parseFloat(gstRate || 0)) / 100;
     const total = taxableAmount + gstAmount;
     
     return {
-      subtotal: subtotal.toFixed(2),
-      discountAmount: discountAmount.toFixed(2),
-      taxableAmount: taxableAmount.toFixed(2),
-      gstAmount: gstAmount.toFixed(2),
-      total: total.toFixed(2),
+      subtotal: parseFloat(subtotal.toFixed(2)),
+      discountAmount: parseFloat(discountAmount.toFixed(2)),
+      taxableAmount: parseFloat(taxableAmount.toFixed(2)),
+      gstAmount: parseFloat(gstAmount.toFixed(2)),
+      total: parseFloat(total.toFixed(2)),
     };
   };
 
@@ -164,69 +189,120 @@ const StaffBilling = () => {
       return;
     }
     
+    if (!staffInfo || !staffInfo._id) {
+      alert("Staff information not loaded. Please refresh the page.");
+      return;
+    }
+    
+    if (!branchInfo || !branchInfo.branch_id) {
+      alert("Branch information not loaded. Please refresh the page.");
+      return;
+    }
+    
     setSavingBill(true);
     
     try {
       const totals = calculateTotals();
-      const billNumber = `INV-${Date.now()}`;
-      const billDate = new Date().toLocaleString('en-IN');
       
-      // Prepare bill data for backend
+      // Validate totals are not NaN
+      if (isNaN(totals.subtotal) || isNaN(totals.total)) {
+        alert("Error calculating totals. Please check item prices.");
+        setSavingBill(false);
+        return;
+      }
+      
+      // Prepare bill data with proper structure matching backend expectations
       const billData = {
-        billNumber,
-        customer: customerInfo,
-        items: cartItems,
-        totals,
-        gstRate,
-        discount,
-        paymentMethod,
-        notes,
-        branch: branchInfo,
-        staff: staffInfo,
+        customer: {
+          name: customerInfo.name.trim(),
+          phone: customerInfo.phone.trim(),
+          email: customerInfo.email?.trim() || "",
+          address: customerInfo.address?.trim() || ""
+        },
+        items: cartItems.map(item => {
+          const price = parseFloat(item.price) || 0;
+          const quantity = parseInt(item.quantity) || 0;
+          const amount = price * quantity;
+          
+          return {
+            pid: item.pid || item._id,
+            name: item.name || "Unknown Product",
+            brand: item.brand || "Unknown",
+            price: price,
+            quantity: quantity,
+            amount: parseFloat(amount.toFixed(2)) // ✅ REQUIRED FIELD
+          };
+        }),
+        totals: {
+          subtotal: totals.subtotal,
+          discountAmount: totals.discountAmount,
+          taxableAmount: totals.taxableAmount,
+          gstAmount: totals.gstAmount,
+          total: totals.total
+        },
+        gstRate: parseFloat(gstRate) || 18,
+        discount: parseFloat(discount) || 0,
+        paymentMethod: paymentMethod || "Cash",
+        notes: notes.trim(),
+        // ✅ Backend expects these exact field names
+        branchId: branchInfo.branch_id,
+        branchName: branchInfo.branch_name,
+        branchLocation: branchInfo.branch_location || ""
       };
+      
+      console.log("📤 Sending Bill Data:", JSON.stringify(billData, null, 2));
       
       // Save bill to backend
       const response = await axiosInstance.post('/bills', billData);
       
-      if (response.data.success) {
-        // Use the bill from backend response
-        const savedBill = response.data.bill;
-        
-        // Format the bill for display
-        const displayBill = {
-          ...savedBill,
-          billDate: new Date(savedBill.billDate).toLocaleString('en-IN'),
-          customer: savedBill.customer,
-          items: savedBill.items,
-          totals: savedBill.totals,
-          branch: {
-            branch_id: savedBill.branchId,
-            branch_name: savedBill.branchName,
-            branch_location: savedBill.branchLocation
-          },
-          staff: {
-            _id: savedBill.staffId,
-            name: savedBill.staffName
-          }
-        };
-        
-        setGeneratedBill(displayBill);
-        setShowBillPreview(true);
-        
-        // Refresh inventory after successful bill creation
-        await fetchInitialData();
-        
-        alert("✅ Bill saved successfully!");
-      }
+      console.log("📥 Bill Response:", response.data);
+      
+      const savedBill = response.data;
+      
+      // Format the bill for display
+      const displayBill = {
+        ...savedBill,
+        billDate: new Date(savedBill.billDate).toLocaleString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        }),
+        branch: {
+          branch_id: savedBill.branchId,
+          branch_name: savedBill.branchName,
+          branch_location: savedBill.branchLocation
+        },
+        staff: {
+          _id: savedBill.staffId,
+          name: savedBill.staffName
+        }
+      };
+      
+      setGeneratedBill(displayBill);
+      setShowBillPreview(true);
+      
+      // Refresh inventory after successful bill creation
+      await fetchInitialData();
+      
+      alert("✅ Bill saved successfully!");
+      
     } catch (error) {
-      console.error("Error saving bill:", error);
+      console.error("❌ Error saving bill:", error);
+      console.error("Error response:", error.response?.data);
       
       if (error.response) {
-        // Backend returned an error
         const errorMessage = error.response.data.message || "Failed to save bill";
         alert(`❌ ${errorMessage}`);
+        
+        // If it's an inventory issue, refresh the inventory
+        if (errorMessage.includes("not found in inventory") || 
+            errorMessage.includes("Insufficient stock")) {
+          await fetchInitialData();
+        }
       } else {
-        // Network or other error
         alert("❌ Failed to save bill. Please check your connection and try again.");
       }
     } finally {
@@ -254,7 +330,6 @@ const StaffBilling = () => {
     setSendingEmail(true);
     
     try {
-      // Call your backend API to send email
       const response = await axiosInstance.post('/bills/send-email', {
         billId: generatedBill._id,
         email: customerInfo.email
@@ -498,31 +573,31 @@ const StaffBilling = () => {
                 
                 <div className="summary-row-staff">
                   <span>Subtotal:</span>
-                  <span>₹{totals.subtotal}</span>
+                  <span>₹{totals.subtotal.toFixed(2)}</span>
                 </div>
                 
                 {discount > 0 && (
                   <div className="summary-row-staff discount-row-staff">
                     <span>Discount ({discount}%):</span>
-                    <span>- ₹{totals.discountAmount}</span>
+                    <span>- ₹{totals.discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 
                 <div className="summary-row-staff">
                   <span>Taxable Amount:</span>
-                  <span>₹{totals.taxableAmount}</span>
+                  <span>₹{totals.taxableAmount.toFixed(2)}</span>
                 </div>
                 
                 <div className="summary-row-staff">
                   <span>GST ({gstRate}%):</span>
-                  <span>₹{totals.gstAmount}</span>
+                  <span>₹{totals.gstAmount.toFixed(2)}</span>
                 </div>
                 
                 <div className="summary-divider-staff"></div>
                 
                 <div className="summary-row-staff total-row-staff">
                   <span>Total Amount:</span>
-                  <span>₹{totals.total}</span>
+                  <span>₹{totals.total.toFixed(2)}</span>
                 </div>
                 
                 <button 
@@ -608,8 +683,8 @@ const StaffBilling = () => {
                       </td>
                       <td>8471</td>
                       <td>{item.quantity}</td>
-                      <td>₹{item.price.toFixed(2)}</td>
-                      <td>₹{(item.price * item.quantity).toFixed(2)}</td>
+                      <td>₹{parseFloat(item.price).toFixed(2)}</td>
+                      <td>₹{parseFloat(item.amount).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -625,29 +700,29 @@ const StaffBilling = () => {
                 <div className="totals-right-staff">
                   <div className="total-row-bill-staff">
                     <span>Subtotal:</span>
-                    <span>₹{generatedBill?.totals.subtotal}</span>
+                    <span>₹{parseFloat(generatedBill?.totals.subtotal).toFixed(2)}</span>
                   </div>
                   {generatedBill?.discount > 0 && (
                     <div className="total-row-bill-staff">
                       <span>Discount ({generatedBill?.discount}%):</span>
-                      <span>- ₹{generatedBill?.totals.discountAmount}</span>
+                      <span>- ₹{parseFloat(generatedBill?.totals.discountAmount).toFixed(2)}</span>
                     </div>
                   )}
                   <div className="total-row-bill-staff">
                     <span>Taxable Amount:</span>
-                    <span>₹{generatedBill?.totals.taxableAmount}</span>
+                    <span>₹{parseFloat(generatedBill?.totals.taxableAmount).toFixed(2)}</span>
                   </div>
                   <div className="total-row-bill-staff">
                     <span>CGST ({generatedBill?.gstRate/2}%):</span>
-                    <span>₹{(generatedBill?.totals.gstAmount / 2).toFixed(2)}</span>
+                    <span>₹{(parseFloat(generatedBill?.totals.gstAmount) / 2).toFixed(2)}</span>
                   </div>
                   <div className="total-row-bill-staff">
                     <span>SGST ({generatedBill?.gstRate/2}%):</span>
-                    <span>₹{(generatedBill?.totals.gstAmount / 2).toFixed(2)}</span>
+                    <span>₹{(parseFloat(generatedBill?.totals.gstAmount) / 2).toFixed(2)}</span>
                   </div>
                   <div className="total-row-bill-staff final-total-staff">
                     <span><strong>Total Amount:</strong></span>
-                    <span><strong>₹{generatedBill?.totals.total}</strong></span>
+                    <span><strong>₹{parseFloat(generatedBill?.totals.total).toFixed(2)}</strong></span>
                   </div>
                 </div>
               </div>
