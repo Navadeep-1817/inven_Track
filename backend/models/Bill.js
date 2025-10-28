@@ -124,7 +124,7 @@ const billSchema = new mongoose.Schema({
   
   staffId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'InvenTrack',
+    ref: 'InvenTrack', // ✅ CORRECT: Referencing InvenTrack collection
     required: true
   },
   staffName: {
@@ -139,7 +139,7 @@ const billSchema = new mongoose.Schema({
     default: 'completed'
   }
 }, {
-  timestamps: true // Adds createdAt and updatedAt automatically
+  timestamps: true
 });
 
 // Index for faster queries

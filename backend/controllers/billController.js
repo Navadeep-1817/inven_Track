@@ -11,30 +11,25 @@ const getBranchBills = async (req, res) => {
     const user = req.user;
     let branchId = req.params.branchId;
     
-    // ⚠️ FIX 1: Correct property name from user model
     // Manager/Staff can only access their own branch
     if (user.role === "Manager" || user.role === "Staff") {
-      branchId = user.branch_id; // Changed from user.branchId
+      branchId = user.branch_id;
     }
 
-    // Validate branchId exists
     if (!branchId) {
       return res.status(400).json({ message: "branchId is required" });
     }
 
-    // Get query parameters for filtering
     const { startDate, endDate, status, limit = 50, page = 1 } = req.query;
 
     let query = { branchId };
 
-    // Add date range filter if provided
     if (startDate || endDate) {
       query.billDate = {};
       if (startDate) query.billDate.$gte = new Date(startDate);
       if (endDate) query.billDate.$lte = new Date(endDate);
     }
 
-    // Add status filter if provided
     if (status) {
       query.status = status;
     }
@@ -71,14 +66,12 @@ const getAllBills = async (req, res) => {
 
     let query = {};
 
-    // Add date range filter if provided
     if (startDate || endDate) {
       query.billDate = {};
       if (startDate) query.billDate.$gte = new Date(startDate);
       if (endDate) query.billDate.$lte = new Date(endDate);
     }
 
-    // Add status filter if provided
     if (status) {
       query.status = status;
     }
@@ -118,10 +111,9 @@ const getBillById = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
-    // ⚠️ FIX 2: Correct property name
     // Manager/Staff can only view bills from their branch
     if ((user.role === "Manager" || user.role === "Staff") && 
-        bill.branchId !== user.branch_id) { // Changed from user.branchId
+        bill.branchId !== user.branch_id) {
       return res.status(403).json({ message: "Access denied to this bill" });
     }
 
@@ -144,10 +136,9 @@ const getBillByNumber = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
-    // ⚠️ FIX 3: Correct property name
     // Manager/Staff can only view bills from their branch
     if ((user.role === "Manager" || user.role === "Staff") && 
-        bill.branchId !== user.branch_id) { // Changed from user.branchId
+        bill.branchId !== user.branch_id) {
       return res.status(403).json({ message: "Access denied to this bill" });
     }
 
@@ -159,41 +150,98 @@ const getBillByNumber = async (req, res) => {
 };
 
 // POST create a new bill
+// POST create a new bill
 const createBill = async (req, res) => {
   try {
-    const user = req.user;
-    const billData = req.body;
+    console.log("📥 Creating Bill - Request User:", req.user);
+    console.log("📥 Creating Bill - Request Body:", JSON.stringify(req.body, null, 2));
 
-    // ⚠️ FIX 4: Correct property name
-    // Determine branchId based on role
-    const branchId = user.role === "superadmin" ? billData.branchId : user.branch_id; // Changed from user.branchId
+    const user = req.user || {};
+    const billData = req.body || {};
 
-    if (!branchId) {
-      return res.status(400).json({ message: "branchId required" });
+    // --- Robust branchId resolution ---
+    // allow these sources (priority order):
+    // 1) superadmin can supply billData.branchId OR req.params.branchId or req.query.branchId
+    // 2) non-superadmin uses user's branch (accept different possible field names)
+    const userBranchCandidates = [
+      user.branch_id,
+      user.branchId,
+      user.branch,        // in case middleware used different name
+      user.branchid
+    ].filter(Boolean);
+
+    const requestBranchCandidates = [
+      billData.branchId,
+      req.params?.branchId,
+      req.query?.branchId
+    ].filter(Boolean);
+
+    let branchId;
+    if (user.role === "superadmin") {
+      // superadmin must supply branchId somewhere
+      branchId = requestBranchCandidates[0] || userBranchCandidates[0];
+    } else {
+      // manager/staff must use their own branch from user token
+      branchId = userBranchCandidates[0] || requestBranchCandidates[0];
     }
 
-    // Validate items exist in inventory and update quantities
+    // Normalize to string if it's an ObjectId
+    if (branchId && typeof branchId !== "string") {
+      branchId = branchId.toString();
+    }
+
+    console.log("✅ Resolved branchId:", branchId);
+    console.log("✅ User branch candidates:", userBranchCandidates);
+    console.log("✅ Request branch candidates:", requestBranchCandidates);
+    console.log("✅ User role:", user.role);
+
+    if (!branchId) {
+      console.error("❌ No branchId found! user and request missing branch information.");
+      return res.status(400).json({
+        message: "branchId required",
+        debug: {
+          user: {
+            id: user.id || user._id,
+            role: user.role,
+            branch_id: user.branch_id,
+            branchId: user.branchId,
+            branch: user.branch
+          },
+          request: {
+            bodyBranchId: billData.branchId,
+            paramsBranchId: req.params?.branchId,
+            queryBranchId: req.query?.branchId
+          }
+        }
+      });
+    }
+
+    // Validate items exist
+    if (!Array.isArray(billData.items) || billData.items.length === 0) {
+      return res.status(400).json({ message: "Bill must contain at least one item" });
+    }
+
+    // Validate customer info
+    if (!billData.customer || !billData.customer.name || !billData.customer.phone) {
+      return res.status(400).json({ message: "Customer name and phone are required" });
+    }
+
+    // Validate branch inventory exists
     const branchInventory = await Inventory.findOne({ branchId });
-    
     if (!branchInventory) {
+      console.error("❌ Branch inventory not found for branchId:", branchId);
       return res.status(404).json({ message: "Branch inventory not found" });
     }
 
-    // Check stock availability and prepare inventory updates
+    // Check stock availability
     for (const item of billData.items) {
-      const inventoryItem = branchInventory.inventoryItems.find(
-        (inv) => inv.pid === item.pid
-      );
-
+      const inventoryItem = branchInventory.inventoryItems.find(inv => inv.pid === item.pid);
       if (!inventoryItem) {
-        return res.status(400).json({ 
-          message: `Product ${item.pid} not found in inventory` 
-        });
+        return res.status(400).json({ message: `Product ${item.pid} not found in inventory` });
       }
-
       if (inventoryItem.quantity < item.quantity) {
-        return res.status(400).json({ 
-          message: `Insufficient stock for ${item.name}. Available: ${inventoryItem.quantity}` 
+        return res.status(400).json({
+          message: `Insufficient stock for ${item.name}. Available: ${inventoryItem.quantity}`
         });
       }
     }
@@ -202,59 +250,82 @@ const createBill = async (req, res) => {
     const billCount = await Bill.countDocuments({ branchId });
     const billNumber = `${branchId}-${Date.now()}-${billCount + 1}`;
 
-    // Calculate totals
-    const subtotal = billData.items.reduce((sum, item) => sum + item.amount, 0);
-    const discountAmount = (subtotal * (billData.discount || 0)) / 100;
+    // Calculate totals safely
+    const subtotal = billData.items.reduce((sum, item) => {
+      const amount = parseFloat(item.amount);
+      if (isNaN(amount)) {
+        throw new Error(`Invalid amount for item ${item.pid}`);
+      }
+      return sum + amount;
+    }, 0);
+
+    const discountPct = parseFloat(billData.discount) || 0;
+    const gstRate = parseFloat(billData.gstRate) || 18;
+    const discountAmount = (subtotal * discountPct) / 100;
     const taxableAmount = subtotal - discountAmount;
-    const gstAmount = (taxableAmount * billData.gstRate) / 100;
+    const gstAmount = (taxableAmount * gstRate) / 100;
     const total = taxableAmount + gstAmount;
 
-    // Create bill
+    // Branch and staff info
+    const branchName = billData.branchName || "Unknown Branch";
+    const branchLocation = billData.branchLocation || "";
+
+    // Resolve staff id (use user._id or user.id)
+    const staffId = user.id || user._id;
+    if (!staffId) {
+      console.warn("⚠️ staffId missing on user object. Bill will fail if staffId is required by schema.");
+    }
+
     const newBill = new Bill({
       billNumber,
       billDate: billData.billDate || Date.now(),
       customer: billData.customer,
       items: billData.items,
       totals: {
-        subtotal,
-        discountAmount,
-        taxableAmount,
-        gstAmount,
-        total
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        discountAmount: parseFloat(discountAmount.toFixed(2)),
+        taxableAmount: parseFloat(taxableAmount.toFixed(2)),
+        gstAmount: parseFloat(gstAmount.toFixed(2)),
+        total: parseFloat(total.toFixed(2))
       },
-      gstRate: billData.gstRate || 18,
-      discount: billData.discount || 0,
+      gstRate,
+      discount: discountPct,
       paymentMethod: billData.paymentMethod || 'Cash',
       notes: billData.notes || '',
       branchId,
-      branchName: billData.branchName,
-      branchLocation: billData.branchLocation || '',
-      staffId: user.id,
-      staffName: user.name,
+      branchName,
+      branchLocation,
+      staffId,                 // should reference InvenTrack
+      staffName: user.name || billData.staffName || '',
       status: 'completed'
     });
 
+    console.log("✅ Saving bill...");
     await newBill.save();
+    console.log("✅ Bill saved successfully:", newBill._id);
 
     // Update inventory quantities
     for (const item of billData.items) {
-      const inventoryItem = branchInventory.inventoryItems.find(
-        (inv) => inv.pid === item.pid
-      );
+      const inventoryItem = branchInventory.inventoryItems.find(inv => inv.pid === item.pid);
       inventoryItem.quantity -= item.quantity;
       inventoryItem.lastUpdated = Date.now();
     }
-
     await branchInventory.save();
+    console.log("✅ Inventory updated successfully");
 
     res.status(201).json(newBill);
+
   } catch (err) {
     console.error("❌ createBill Error:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 };
 
-// PUT update bill status (for cancellation/refund)
+
+// PUT update bill status
 const updateBillStatus = async (req, res) => {
   try {
     const user = req.user;
@@ -271,9 +342,8 @@ const updateBillStatus = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
-    // ⚠️ FIX 5: Correct property name
     // Manager/Staff can only update bills from their branch
-    const effectiveBranchId = user.role === "superadmin" ? bill.branchId : user.branch_id; // Changed from user.branchId
+    const effectiveBranchId = user.role === "superadmin" ? bill.branchId : user.branch_id;
     
     if (bill.branchId !== effectiveBranchId) {
       return res.status(403).json({ message: "Access denied to this bill" });
@@ -313,10 +383,9 @@ const getBranchRevenue = async (req, res) => {
     const user = req.user;
     let branchId = req.params.branchId;
     
-    // ⚠️ FIX 6: Correct property name
     // Manager/Staff can only access their own branch
     if (user.role === "Manager" || user.role === "Staff") {
-      branchId = user.branch_id; // Changed from user.branchId
+      branchId = user.branch_id;
     }
 
     if (!branchId) {
@@ -404,7 +473,6 @@ const sendBillEmail = async (req, res) => {
       return res.status(400).json({ message: "Bill ID is required" });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
@@ -416,11 +484,10 @@ const sendBillEmail = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
-    // ⚠️ FIX 7: Correct property name
     // Check if user has access to this bill
     const user = req.user;
     if ((user.role === "Manager" || user.role === "Staff") && 
-        bill.branchId !== user.branch_id) { // Changed from user.branchId
+        bill.branchId !== user.branch_id) {
       return res.status(403).json({ message: "Access denied to this bill" });
     }
 
