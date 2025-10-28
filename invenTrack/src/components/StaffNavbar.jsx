@@ -13,6 +13,7 @@
           <button onClick={() => navigate("/staffDashboard")}>Home</button>
           <button onClick={() => navigate("/staffDashboard/staffInventory")}>Inventory</button>
           <button onClick={() => navigate("/staffDashboard/staffBilling")}>Bill</button>
+          <button onClick={() => navigate("/staffDashboard/staffBillsHistory")}>History</button>
           <button onClick={() => navigate("/staffDashboard/staffAlerts")}>Alerts</button>
         </div>
         <div className="navbar-right">
