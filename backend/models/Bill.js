@@ -124,7 +124,7 @@ const billSchema = new mongoose.Schema({
   
   staffId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Staff',
+    ref: 'InvenTrack',
     required: true
   },
   staffName: {

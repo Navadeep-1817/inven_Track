@@ -55,8 +55,9 @@ const StaffBillsHistory = () => {
       const branchRes = await axiosInstance.get("/branches");
       const branch = branchRes.data.find(b => b.branch_id === branchId);
       
+      // ✅ FIX: Store branchId (camelCase) to match backend expectations
       setBranchInfo({
-        branch_id: branch.branch_id,
+        branchId: branch.branch_id, // Store as branchId for consistency
         branch_name: branch.branch_name,
         branch_location: branch.branch_location || ""
       });
@@ -69,17 +70,24 @@ const StaffBillsHistory = () => {
   const fetchBills = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(`/bills/branch/${branchInfo.branch_id}`, {
+      console.log("Fetching bills for branchId:", branchInfo.branchId); // Debug log
+      
+      // ✅ FIX: Use branchId (camelCase) to match backend
+      const response = await axiosInstance.get(`/bills/branch/${branchInfo.branchId}`, {
         params: {
           limit: 1000, // Get all bills for filtering on frontend
         }
       });
+      
+      console.log("Bills response:", response.data); // Debug log
       
       const billsData = response.data.bills || response.data || [];
       setBills(billsData);
       calculateStatistics(billsData);
     } catch (error) {
       console.error("Error fetching bills:", error);
+      console.error("Error details:", error.response?.data); // More detailed error logging
+      alert("Error loading bills: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }

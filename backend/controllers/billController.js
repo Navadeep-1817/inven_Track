@@ -11,9 +11,10 @@ const getBranchBills = async (req, res) => {
     const user = req.user;
     let branchId = req.params.branchId;
     
+    // ⚠️ FIX 1: Correct property name from user model
     // Manager/Staff can only access their own branch
-    if (user.role === "manager" || user.role === "staff") {
-      branchId = user.branchId;
+    if (user.role === "Manager" || user.role === "Staff") {
+      branchId = user.branch_id; // Changed from user.branchId
     }
 
     // Validate branchId exists
@@ -117,9 +118,10 @@ const getBillById = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
+    // ⚠️ FIX 2: Correct property name
     // Manager/Staff can only view bills from their branch
-    if ((user.role === "manager" || user.role === "staff") && 
-        bill.branchId !== user.branchId) {
+    if ((user.role === "Manager" || user.role === "Staff") && 
+        bill.branchId !== user.branch_id) { // Changed from user.branchId
       return res.status(403).json({ message: "Access denied to this bill" });
     }
 
@@ -142,9 +144,10 @@ const getBillByNumber = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
+    // ⚠️ FIX 3: Correct property name
     // Manager/Staff can only view bills from their branch
-    if ((user.role === "manager" || user.role === "staff") && 
-        bill.branchId !== user.branchId) {
+    if ((user.role === "Manager" || user.role === "Staff") && 
+        bill.branchId !== user.branch_id) { // Changed from user.branchId
       return res.status(403).json({ message: "Access denied to this bill" });
     }
 
@@ -161,8 +164,9 @@ const createBill = async (req, res) => {
     const user = req.user;
     const billData = req.body;
 
+    // ⚠️ FIX 4: Correct property name
     // Determine branchId based on role
-    const branchId = user.role === "superadmin" ? billData.branchId : user.branchId;
+    const branchId = user.role === "superadmin" ? billData.branchId : user.branch_id; // Changed from user.branchId
 
     if (!branchId) {
       return res.status(400).json({ message: "branchId required" });
@@ -267,8 +271,9 @@ const updateBillStatus = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
+    // ⚠️ FIX 5: Correct property name
     // Manager/Staff can only update bills from their branch
-    const effectiveBranchId = user.role === "superadmin" ? bill.branchId : user.branchId;
+    const effectiveBranchId = user.role === "superadmin" ? bill.branchId : user.branch_id; // Changed from user.branchId
     
     if (bill.branchId !== effectiveBranchId) {
       return res.status(403).json({ message: "Access denied to this bill" });
@@ -308,9 +313,10 @@ const getBranchRevenue = async (req, res) => {
     const user = req.user;
     let branchId = req.params.branchId;
     
+    // ⚠️ FIX 6: Correct property name
     // Manager/Staff can only access their own branch
-    if (user.role === "manager" || user.role === "staff") {
-      branchId = user.branchId;
+    if (user.role === "Manager" || user.role === "Staff") {
+      branchId = user.branch_id; // Changed from user.branchId
     }
 
     if (!branchId) {
@@ -410,10 +416,11 @@ const sendBillEmail = async (req, res) => {
       return res.status(404).json({ message: "Bill not found" });
     }
 
+    // ⚠️ FIX 7: Correct property name
     // Check if user has access to this bill
     const user = req.user;
-    if ((user.role === "manager" || user.role === "staff") && 
-        bill.branchId !== user.branchId) {
+    if ((user.role === "Manager" || user.role === "Staff") && 
+        bill.branchId !== user.branch_id) { // Changed from user.branchId
       return res.status(403).json({ message: "Access denied to this bill" });
     }
 
