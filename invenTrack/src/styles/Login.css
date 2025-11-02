@@ -1,7 +1,7 @@
 /* Login Container */
 .login-form-lgn {
   max-width: 420px;
-  margin: 80px auto;
+  margin: 80px auto 40px auto;
   padding: 40px;
   border-radius: 16px;
   background: #ffffff;
@@ -9,7 +9,6 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
   overflow: hidden;
-  margin-top: 20px;
 }
 
 .login-form-lgn::before {
@@ -231,16 +230,312 @@
   }
 }
 
+/* Tester Manual Button - Lowered position */
+.tester-manual-btn-lgn {
+  position: fixed;
+  top: 80px; /* Lowered from 20px to 80px */
+  right: 20px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tester-manual-btn-lgn:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.tester-manual-btn-lgn:active {
+  transform: translateY(0);
+}
+
+/* Tester Manual Modal */
+.tester-manual-modal-lgn {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  padding: 0;
+  animation: modalSlideIn-lgn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn-lgn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.tester-manual-header-lgn {
+  padding: 24px;
+  background: linear-gradient(135deg, #4a90e2, #357ab8);
+  color: white;
+  border-radius: 16px 16px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tester-manual-header-lgn h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tester-manual-body-lgn {
+  padding: 0 24px 24px 24px;
+}
+
+/* Warning Banner */
+.warning-banner-lgn {
+  padding: 16px;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+.warning-banner-lgn p {
+  margin: 0;
+  color: #92400e;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Credential Sections */
+.credential-section-lgn {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px solid #e1e8ed;
+}
+
+.credential-section-lgn h3 {
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.credential-details-lgn {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #e1e8ed;
+}
+
+.credential-details-lgn p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.credential-details-lgn strong {
+  color: #1f2937;
+}
+
+.auto-fill-btn-lgn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auto-fill-btn-superadmin-lgn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.auto-fill-btn-manager-lgn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.auto-fill-btn-staff-lgn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.auto-fill-btn-lgn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.auto-fill-btn-superadmin-lgn:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+.auto-fill-btn-manager-lgn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.auto-fill-btn-staff-lgn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* Tip Banner */
+.tip-banner-lgn {
+  padding: 16px;
+  background: #dbeafe;
+  border: 2px solid #3b82f6;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.tip-banner-lgn p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Divider */
+.divider-lgn {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d1d5db, transparent);
+  margin: 20px 0;
+}
+
+/* Modal Overlay */
+.modal-overlay-lgn {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: overlayFadeIn-lgn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn-lgn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Close Button */
+.close-btn-lgn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.close-btn-lgn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
 /* Responsive Design */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .login-form-lgn {
-    margin: 40px 20px;
+    margin: 100px 20px 40px 20px;
     padding: 30px 25px;
   }
 
   .login-form-lgn::after {
     font-size: 22px;
     margin-bottom: 25px;
+  }
+
+  .tester-manual-btn-lgn {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 20px auto;
+    display: block;
+    width: fit-content;
+  }
+
+  .tester-manual-modal-lgn {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .tester-manual-body-lgn {
+    padding: 0 16px 16px 16px;
+  }
+
+  .credential-section-lgn {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tester-manual-header-lgn {
+    padding: 20px;
+  }
+
+  .tester-manual-header-lgn h2 {
+    font-size: 18px;
+  }
+
+  .credential-section-lgn h3 {
+    font-size: 15px;
+  }
+
+  .auto-fill-btn-lgn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

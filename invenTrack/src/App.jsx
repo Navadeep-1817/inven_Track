@@ -17,6 +17,7 @@ import Signup from "./pages/SignUp.jsx";
 import Dashboard from "./pages/DashBoard.jsx";
 import Branch from "./pages/Branch.jsx";
 import LowStockAlerts from "./pages/LowStockAlerts.jsx";
+import AdminComplaints from "./pages/AdminComplaints.jsx";
 
 // Import Manager pages
 import Attendance from "./pages/manager/Attendance.jsx";
@@ -32,11 +33,13 @@ import StaffDashboard from "./pages/staffDashboard.jsx";
 import ManagerNavbar from "./components/ManagerNavbar.jsx";
 import StaffNavbar from "./components/StaffNavbar.jsx";
 import ManagerLowStockAlerts from "./pages/manager/ManagerLowStockAlerts.jsx";
+import ManagerComplaints from "./pages/manager/ManagerComplaints.jsx";
 
 import StaffInventory from "./pages/staff/StaffInventory.jsx";
 import StaffAlerts from "./pages/staff/StaffAlerts.jsx";
 import StaffBilling from "./pages/staff/StaffBilling.jsx";
 import StaffBillsHistory from "./pages/staff/StaffBillsHistory.jsx";
+import StaffComplaints from "./pages/staff/StaffComplaints.jsx";
 
 function App() {
   return (
@@ -82,6 +85,7 @@ function App() {
                   <Route path="/invoice" element={<Invoice />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/lowStockAlerts" element={<LowStockAlerts />} />
+                  <Route path="/adminComplaints" element={<AdminComplaints />} />
                   <Route path="/staff" element={<Staff />} />
                   <Route path="/branch" element={<Branch />} />
                   <Route path="/aboutus" element={<AboutUs />} />
@@ -104,6 +108,7 @@ function App() {
                   <Route path="managerstaff" element={<ManagerStaff />} />
                   <Route path="managerInventory" element={<ManageInventory />} />
                   <Route path="managerLowStockAlerts" element={<ManagerLowStockAlerts/>} />
+                  <Route path="managerComplaints" element={<ManagerComplaints/>} />
                   <Route path="aboutUs" element={<AboutUs />} />
                 </Routes>
                 {/* Manager-specific footer? */}
@@ -123,8 +128,8 @@ function App() {
                   <Route path="staffAlerts" element={<StaffAlerts/>}/>
                   <Route path="staffBilling" element={<StaffBilling/>}/>
                   <Route path="staffBillsHistory" element={<StaffBillsHistory/>}/>
+                  <Route path="staffComplaints" element={<StaffComplaints/>}/>
                 </Routes>
-      
               </>
             }
           />

@@ -46,7 +46,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_BASE}/branches`);
-      console.log('✅ Fetched branches:', response.data);
+
       
       if (Array.isArray(response.data) && response.data.length > 0) {
         setBranches(response.data);
@@ -68,7 +68,7 @@ const Dashboard = () => {
 
   const fetchBranchData = async (branchId) => {
     try {
-      console.log('📊 Fetching data for branch:', branchId);
+
       
       // Fetch inventory, bills, staff, and attendance in parallel
       const [inventoryRes, billsRes, staffRes, attendanceRes] = await Promise.all([
@@ -94,10 +94,6 @@ const Dashboard = () => {
           })
       ]);
 
-      console.log('📦 Inventory data:', inventoryRes.data);
-      console.log('📝 Bills data:', billsRes.data);
-      console.log('👥 Staff data:', staffRes.data);
-      console.log('📅 Attendance data:', attendanceRes.data);
 
       setInventory(Array.isArray(inventoryRes.data) ? inventoryRes.data : []);
       setBills(billsRes.data.bills || billsRes.data || []);
@@ -105,7 +101,6 @@ const Dashboard = () => {
       
       // Set attendance records from the API response
       const attendanceData = attendanceRes.data.records || attendanceRes.data || [];
-      console.log('📅 Setting attendance records:', attendanceData.length, 'records');
       setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
       
       setError(null);
@@ -292,9 +287,6 @@ const Dashboard = () => {
   };
 
   const calculateAttendanceStats = () => {
-    console.log('🧮 Calculating attendance stats...');
-    console.log('📊 Staff list:', staff.length, 'staff members');
-    console.log('📊 Attendance records:', attendance.length, 'records');
 
     if (!attendance.length || !staff.length) {
       console.warn('⚠️ Missing data - staff:', staff.length, 'attendance:', attendance.length);
@@ -316,7 +308,6 @@ const Dashboard = () => {
       };
     });
 
-    console.log('👥 Initialized staff attendance tracking for', Object.keys(staffAttendance).length, 'staff');
 
     // Calculate attendance from records
     attendance.forEach((record, recordIndex) => {
@@ -350,8 +341,6 @@ const Dashboard = () => {
           ? ((staff.presentDays + staff.lateDays) / staff.totalDays * 100).toFixed(1)
           : '0.0'
       }));
-
-    console.log('✅ Calculated stats for', stats.length, 'staff members with attendance');
     return stats;
   };
 
