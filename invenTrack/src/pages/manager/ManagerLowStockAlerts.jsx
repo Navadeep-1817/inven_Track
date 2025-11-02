@@ -1,6 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import "../../styles/ManagerLowStockAlerts.css";
+import { 
+  FaExclamationTriangle, 
+  FaExclamationCircle, 
+  FaBolt, 
+  FaCheckCircle, 
+  FaBox, 
+  FaCog, 
+  FaDownload, 
+  FaSearch, 
+  FaRedo, 
+  FaSave, 
+  FaTimes,
+  FaArrowUp,
+  FaArrowDown,
+  FaSort
+} from "react-icons/fa";
 
 const ManagerLowStockAlerts = () => {
   const [branchInfo, setBranchInfo] = useState(null);
@@ -172,10 +188,10 @@ const ManagerLowStockAlerts = () => {
   const getAlertIcon = (quantity) => {
     const level = getAlertLevel(quantity);
     switch (level) {
-      case "critical": return "🚨";
-      case "low": return "⚠️";
-      case "medium": return "⚡";
-      default: return "✅";
+      case "critical": return <FaExclamationTriangle />;
+      case "low": return <FaExclamationCircle />;
+      case "medium": return <FaBolt />;
+      default: return <FaCheckCircle />;
     }
   };
 
@@ -187,8 +203,8 @@ const ManagerLowStockAlerts = () => {
   };
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return "⇅";
-    return sortConfig.direction === "asc" ? "↑" : "↓";
+    if (sortConfig.key !== key) return <FaSort style={{ marginLeft: '4px' }} />;
+    return sortConfig.direction === "asc" ? <FaArrowUp style={{ marginLeft: '4px' }} /> : <FaArrowDown style={{ marginLeft: '4px' }} />;
   };
 
   const handleSaveSettings = () => {
@@ -259,21 +275,21 @@ const ManagerLowStockAlerts = () => {
         {/* Header */}
         <div className="low-stock-header-man-alt">
           <div className="header-content-man-alt">
-            <h1 className="page-title-man-alt"> Low Stock Alerts</h1>
+            <h1 className="page-title-man-alt">Low Stock Alerts</h1>
           </div>
           <div className="header-actions-man-alt">
             <button className="settings-btn-man-alt" onClick={() => setShowSettings(true)}>
-              ⚙️ Alert Settings
+              <FaCog /> Alert Settings
             </button>
             <button className="export-btn-man-alt" onClick={exportToCSV} disabled={lowStockItems.length === 0}>
-              📥 Export CSV
+              <FaDownload /> Export CSV
             </button>
           </div>
         </div>
 
         {error && (
           <div className="error-message-man-alt">
-            <span>⚠️</span> {error}
+            <FaExclamationCircle /> {error}
           </div>
         )}
 
@@ -290,7 +306,7 @@ const ManagerLowStockAlerts = () => {
         {/* Stats Cards */}
         <div className="stats-grid-man-alt">
           <div className="stat-card-man-alt critical-man-alt">
-            <div className="stat-icon-man-alt">🚨</div>
+            <div className="stat-icon-man-alt"><FaExclamationTriangle /></div>
             <div className="stat-content-man-alt">
               <p className="stat-label-man-alt">Critical Alert</p>
               <p className="stat-value-man-alt">{criticalCount}</p>
@@ -299,7 +315,7 @@ const ManagerLowStockAlerts = () => {
           </div>
           
           <div className="stat-card-man-alt low-man-alt">
-            <div className="stat-icon-man-alt">⚠️</div>
+            <div className="stat-icon-man-alt"><FaExclamationCircle /></div>
             <div className="stat-content-man-alt">
               <p className="stat-label-man-alt">Low Stock</p>
               <p className="stat-value-man-alt">{lowCount}</p>
@@ -308,7 +324,7 @@ const ManagerLowStockAlerts = () => {
           </div>
           
           <div className="stat-card-man-alt medium-man-alt">
-            <div className="stat-icon-man-alt">⚡</div>
+            <div className="stat-icon-man-alt"><FaBolt /></div>
             <div className="stat-content-man-alt">
               <p className="stat-label-man-alt">Medium Alert</p>
               <p className="stat-value-man-alt">{mediumCount}</p>
@@ -317,7 +333,7 @@ const ManagerLowStockAlerts = () => {
           </div>
           
           <div className="stat-card-man-alt total-man-alt">
-            <div className="stat-icon-man-alt">📦</div>
+            <div className="stat-icon-man-alt"><FaBox /></div>
             <div className="stat-content-man-alt">
               <p className="stat-label-man-alt">Total Alerts</p>
               <p className="stat-value-man-alt">{lowStockItems.length}</p>
@@ -329,11 +345,13 @@ const ManagerLowStockAlerts = () => {
         {/* Filters */}
         <div className="filters-section-man-alt">
           <div className="search-bar-man-alt">
+            <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
             <input
               type="text"
-              placeholder="🔍 Search by name, brand, or PID..."
+              placeholder="Search by name, brand, or PID..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              style={{ paddingLeft: '36px' }}
             />
           </div>
 
@@ -343,9 +361,9 @@ const ManagerLowStockAlerts = () => {
               onChange={(e) => setFilters({ ...filters, alertLevel: e.target.value })}
             >
               <option value="all">All Alert Levels</option>
-              <option value="critical">🚨 Critical</option>
-              <option value="low">⚠️ Low</option>
-              <option value="medium">⚡ Medium</option>
+              <option value="critical">Critical</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
             </select>
 
             <select
@@ -371,7 +389,7 @@ const ManagerLowStockAlerts = () => {
             </select>
 
             <button className="reset-btn-man-alt" onClick={resetFilters}>
-              🔄 Reset
+              <FaRedo /> Reset
             </button>
           </div>
         </div>
@@ -383,22 +401,22 @@ const ManagerLowStockAlerts = () => {
               <thead>
                 <tr>
                   <th>Alert</th>
-                  <th onClick={() => handleSort("pid")}>
+                  <th onClick={() => handleSort("pid")} style={{ cursor: 'pointer' }}>
                     PID {getSortIcon("pid")}
                   </th>
-                  <th onClick={() => handleSort("name")}>
+                  <th onClick={() => handleSort("name")} style={{ cursor: 'pointer' }}>
                     Product Name {getSortIcon("name")}
                   </th>
-                  <th onClick={() => handleSort("brand")}>
+                  <th onClick={() => handleSort("brand")} style={{ cursor: 'pointer' }}>
                     Brand {getSortIcon("brand")}
                   </th>
-                  <th onClick={() => handleSort("pCategory")}>
+                  <th onClick={() => handleSort("pCategory")} style={{ cursor: 'pointer' }}>
                     Category {getSortIcon("pCategory")}
                   </th>
-                  <th onClick={() => handleSort("quantity")}>
+                  <th onClick={() => handleSort("quantity")} style={{ cursor: 'pointer' }}>
                     Quantity {getSortIcon("quantity")}
                   </th>
-                  <th onClick={() => handleSort("price")}>
+                  <th onClick={() => handleSort("price")} style={{ cursor: 'pointer' }}>
                     Price {getSortIcon("price")}
                   </th>
                   <th>Last Updated</th>
@@ -455,7 +473,7 @@ const ManagerLowStockAlerts = () => {
           </div>
         ) : (
           <div className="empty-state-man-alt">
-            <div className="empty-icon-man-alt">✅</div>
+            <div className="empty-icon-man-alt"><FaCheckCircle /></div>
             <h3>All Good!</h3>
             <p>No low stock items found in your branch. All inventory levels are healthy.</p>
           </div>
@@ -465,7 +483,7 @@ const ManagerLowStockAlerts = () => {
         {showSettings && (
           <div className="modal-overlay-man-alt" onClick={() => setShowSettings(false)}>
             <div className="modal-content-man-alt settings-modal-man-alt" onClick={(e) => e.stopPropagation()}>
-              <h2>⚙️ Alert Threshold Settings</h2>
+              <h2><FaCog /> Alert Threshold Settings</h2>
               <p className="modal-description-man-alt">
                 Set quantity thresholds for different alert levels
               </p>
@@ -473,7 +491,7 @@ const ManagerLowStockAlerts = () => {
               <div className="settings-form-man-alt">
                 <div className="setting-item-man-alt critical-man-alt">
                   <label>
-                    <span className="setting-icon-man-alt">🚨</span>
+                    <span className="setting-icon-man-alt"><FaExclamationTriangle /></span>
                     Critical Alert Threshold
                   </label>
                   <input
@@ -487,7 +505,7 @@ const ManagerLowStockAlerts = () => {
 
                 <div className="setting-item-man-alt low-man-alt">
                   <label>
-                    <span className="setting-icon-man-alt">⚠️</span>
+                    <span className="setting-icon-man-alt"><FaExclamationCircle /></span>
                     Low Stock Threshold
                   </label>
                   <input
@@ -501,7 +519,7 @@ const ManagerLowStockAlerts = () => {
 
                 <div className="setting-item-man-alt medium-man-alt">
                   <label>
-                    <span className="setting-icon-man-alt">⚡</span>
+                    <span className="setting-icon-man-alt"><FaBolt /></span>
                     Medium Alert Threshold
                   </label>
                   <input
@@ -516,7 +534,7 @@ const ManagerLowStockAlerts = () => {
 
               <div className="modal-actions-man-alt">
                 <button className="save-btn-man-alt" onClick={handleSaveSettings}>
-                  💾 Save Settings
+                  <FaSave /> Save Settings
                 </button>
                 <button 
                   className="cancel-btn-man-alt" 
@@ -525,7 +543,7 @@ const ManagerLowStockAlerts = () => {
                     setTempSettings(thresholdSettings);
                   }}
                 >
-                  Cancel
+                  <FaTimes /> Cancel
                 </button>
               </div>
             </div>

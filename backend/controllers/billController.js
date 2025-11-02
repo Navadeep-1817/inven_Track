@@ -159,10 +159,7 @@ const createBill = async (req, res) => {
     const user = req.user || {};
     const billData = req.body || {};
 
-    // --- Robust branchId resolution ---
-    // allow these sources (priority order):
-    // 1) superadmin can supply billData.branchId OR req.params.branchId or req.query.branchId
-    // 2) non-superadmin uses user's branch (accept different possible field names)
+
     const userBranchCandidates = [
       user.branch_id,
       user.branchId,

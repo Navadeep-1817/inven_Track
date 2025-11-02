@@ -1,80 +1,250 @@
-/* Container styling */
-.login-form {
-  max-width: 400px;
-  margin: 60px auto;
-  padding: 30px;
-  border-radius: 12px;
+/* Login Container */
+.login-form-lgn {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 40px;
+  border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+  overflow: hidden;
+  margin-top: 20px;
 }
 
-/* Inputs and dropdown */
-.login-form input,
-.login-form select {
+.login-form-lgn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4a90e2, #357ab8);
+}
+
+/* Header */
+.login-form-lgn::after {
+  content: "Welcome Back";
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+/* Input and Select Styling */
+.login-form-lgn input,
+.login-form-lgn select {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  transition: border 0.3s ease;
+  padding: 14px 16px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 2px solid #e1e8ed;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: #fafbfc;
+  box-sizing: border-box;
 }
 
-.login-form input:focus,
-.login-form select:focus {
+.login-form-lgn input:hover,
+.login-form-lgn select:hover {
+  border-color: #c1d9f1;
+  background: #ffffff;
+}
+
+/* Focus States */
+.login-form-lgn input:focus,
+.login-form-lgn select:focus {
   border-color: #4a90e2;
   outline: none;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+  background: #ffffff;
+  transform: translateY(-1px);
 }
 
-/* Fix alignment of Admin checkbox + label */
-.login-form .admin-check {
+/* Accessible Focus (for keyboard navigation) */
+.login-form-lgn input:focus-visible,
+.login-form-lgn select:focus-visible,
+.toggle-password-lgn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+}
+
+/* Admin Checkbox */
+.login-form-lgn .admin-check-lgn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 15px 0;
-}
-
-.login-form .admin-check input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 2px solid #e1e8ed;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.login-form .admin-check span {
-  font-size: 14px;
-  font-weight: 500;
+.login-form-lgn .admin-check-lgn:hover {
+  background: #f0f7ff;
+  border-color: #c1d9f1;
+}
+
+.login-form-lgn .admin-check-lgn input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #4a90e2;
+}
+
+.login-form-lgn .admin-check-lgn span {
+  font-size: 15px;
+  font-weight: 600;
   color: #333;
   cursor: pointer;
 }
 
-/* Button */
-.login-form button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
+/* Password Input Wrapper */
+.password-input-wrapper-lgn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.password-input-wrapper-lgn input {
+  padding-right: 50px;
+  margin: 0;
+}
+
+.toggle-password-lgn {
+  position: absolute;
+  right: 12px;
+  background: none;
   border: none;
-  border-radius: 8px;
-  background: #4a90e2;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password-lgn:hover {
+  background: #f0f7ff;
+  color: #4a90e2;
+  transform: scale(1.1);
+}
+
+.toggle-password-lgn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Login Button */
+.login-button-lgn {
+  width: 100%;
+  padding: 16px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4a90e2, #357ab8);
   color: white;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-form button:hover {
-  background: #357ab8;
+.login-button-lgn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
 }
 
-/* Title */
-.login-form::before {
-  content: "Login";
-  display: block;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 15px;
-  color: #333;
+.login-button-lgn:hover {
+  background: linear-gradient(135deg, #357ab8, #2a6495);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+.login-button-lgn:hover::before {
+  left: 100%;
+}
+
+.login-button-lgn:active {
+  transform: translateY(0);
+}
+
+.login-button-lgn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-button-lgn:disabled::before {
+  display: none;
+}
+
+/* Loading State */
+.login-button-lgn:disabled {
+  position: relative;
+}
+
+.login-button-lgn:disabled::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin-lgn 0.8s linear infinite;
+}
+
+@keyframes spin-lgn {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-form-lgn {
+    margin: 40px 20px;
+    padding: 30px 25px;
+  }
+
+  .login-form-lgn::after {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+.login-form-lgn * {
+  transition: all 0.3s ease;
 }

@@ -313,18 +313,15 @@ const StaffBillsHistory = () => {
         {/* Header */}
         <div className="bills-header-stfblhst">
           <div>
-            <h1 className="page-title-bills-stfblhst">📜 Bills History</h1>
             <p className="page-subtitle-bills-stfblhst">{branchInfo?.branch_name}</p>
           </div>
           <button className="refresh-btn-stfblhst" onClick={fetchBills}>
-            🔄 Refresh
+            Refresh
           </button>
         </div>
 
-        {/* Statistics Cards */}
         <div className="stats-grid-stfblhst">
           <div className="stat-card-stfblhst total-stfblhst">
-            <div className="stat-icon-stfblhst">💰</div>
             <div className="stat-details-stfblhst">
               <p className="stat-label-stfblhst">Total Revenue</p>
               <p className="stat-value-stfblhst">₹{stats.totalRevenue.toFixed(2)}</p>
@@ -333,7 +330,7 @@ const StaffBillsHistory = () => {
           </div>
           
           <div className="stat-card-stfblhst today-stfblhst">
-            <div className="stat-icon-stfblhst">📅</div>
+            <div className="stat-icon-stfblhst"></div>
             <div className="stat-details-stfblhst">
               <p className="stat-label-stfblhst">Today's Revenue</p>
               <p className="stat-value-stfblhst">₹{stats.todayRevenue.toFixed(2)}</p>
@@ -342,7 +339,6 @@ const StaffBillsHistory = () => {
           </div>
           
           <div className="stat-card-stfblhst bills-stfblhst">
-            <div className="stat-icon-stfblhst">🧾</div>
             <div className="stat-details-stfblhst">
               <p className="stat-label-stfblhst">Total Bills</p>
               <p className="stat-value-stfblhst">{stats.totalBills}</p>
@@ -353,7 +349,7 @@ const StaffBillsHistory = () => {
 
         {/* Filters Section */}
         <div className="filters-section-stfblhst">
-          <h2 className="section-title-stfblhst">🔍 Filters</h2>
+          <h2 className="section-title-stfblhst">Filters</h2>
           
           {/* Quick Date Filters */}
           <div className="quick-filters-stfblhst">
@@ -374,7 +370,7 @@ const StaffBillsHistory = () => {
           {/* Detailed Filters */}
           <div className="filters-grid-stfblhst">
             <div className="filter-group-stfblhst">
-              <label>📅 Start Date</label>
+              <label> Start Date</label>
               <input
                 type="date"
                 value={startDate}
@@ -384,7 +380,7 @@ const StaffBillsHistory = () => {
             </div>
             
             <div className="filter-group-stfblhst">
-              <label>📅 End Date</label>
+              <label> End Date</label>
               <input
                 type="date"
                 value={endDate}
@@ -394,7 +390,7 @@ const StaffBillsHistory = () => {
             </div>
             
             <div className="filter-group-stfblhst">
-              <label>🔍 Search</label>
+              <label> Search</label>
               <input
                 type="text"
                 placeholder="Bill #, Customer, Phone..."
@@ -404,7 +400,7 @@ const StaffBillsHistory = () => {
             </div>
             
             <div className="filter-group-stfblhst">
-              <label>📊 Status</label>
+              <label>Status</label>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                 <option value="all">All Status</option>
                 <option value="completed">Completed</option>
@@ -414,7 +410,7 @@ const StaffBillsHistory = () => {
             </div>
             
             <div className="filter-group-stfblhst">
-              <label>💳 Payment Method</label>
+              <label> Payment Method</label>
               <select value={paymentMethodFilter} onChange={(e) => setPaymentMethodFilter(e.target.value)}>
                 <option value="all">All Methods</option>
                 <option value="Cash">Cash</option>
@@ -426,7 +422,7 @@ const StaffBillsHistory = () => {
             
             <div className="filter-group-stfblhst">
               <button className="clear-filters-btn-stfblhst" onClick={clearFilters}>
-                ❌ Clear Filters
+                 Clear Filters
               </button>
             </div>
           </div>

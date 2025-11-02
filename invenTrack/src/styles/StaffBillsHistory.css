@@ -1,6 +1,4 @@
-/* StaffBillsHistory.css */
 
-/* Main Container */
 .bills-history-container-stfblhst {
   min-height: 100vh;
   background-color: #ffffff;
@@ -66,16 +64,12 @@
   border-radius: 15px;
   padding: 25px;
   display: flex;
-  align-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  align-items: center;  
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
 }
 
-.stat-card-stfblhst:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
+
 
 .stat-icon-stfblhst {
   font-size: 3rem;
@@ -87,11 +81,10 @@
 }
 
 .stat-label-stfblhst {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   color: #718096;
   font-weight: 600;
   margin: 0 0 8px 0;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
@@ -108,20 +101,6 @@
   margin: 0;
 }
 
-/* Total Revenue Card */
-.total-stfblhst {
-  border-left: 5px solid #48bb78;
-}
-
-/* Today's Revenue Card */
-.today-stfblhst {
-  border-left: 5px solid #4299e1;
-}
-
-/* Total Bills Card */
-.bills-stfblhst {
-  border-left: 5px solid #ed8936;
-}
 
 /* Filters Section */
 .filters-section-stfblhst {
