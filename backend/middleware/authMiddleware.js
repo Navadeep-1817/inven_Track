@@ -102,6 +102,27 @@ exports.superadminOnly = (req, res, next) => {
 };
 
 /**
+ * 🔸 NEW: restrictTo - Flexible role-based access control
+ * Usage: restrictTo("superadmin") or restrictTo("manager", "superadmin")
+ */
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    console.log("🔍 Checking restrictTo access for roles:", roles);
+    console.log("🔍 User role:", req.user?.role);
+    
+    if (!req.user || !roles.includes(req.user.role)) {
+      console.log("❌ Access denied - user role not in allowed roles");
+      return res.status(403).json({ 
+        message: "You do not have permission to perform this action" 
+      });
+    }
+    
+    console.log("✅ Access granted");
+    next();
+  };
+};
+
+/**
  * 🔸 Manager OR Superadmin access
  */
 exports.managerOrSuperadmin = (req, res, next) => {
@@ -117,7 +138,7 @@ exports.managerOrSuperadmin = (req, res, next) => {
 };
 
 /**
- * 🔸 NEW: Manager, Staff, OR Superadmin access (for viewing inventory)
+ * 🔸 Manager, Staff, OR Superadmin access (for viewing inventory)
  */
 exports.managerStaffOrSuperadmin = (req, res, next) => {
   console.log("🔍 Checking manager/staff/superadmin access for:", req.user);

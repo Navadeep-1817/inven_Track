@@ -146,7 +146,7 @@ const StaffComplaints = () => {
     <div className="complaints-container-cmp">
       <div className="complaints-header-cmp">
         <div>
-          <h1 className="complaints-title-cmp">Staff Complaints</h1>
+          <h1 className="complaints-title-cmp">Complaints</h1>
           <p className="complaints-subtitle-cmp">Submit and track your workplace concerns</p>
         </div>
       </div>

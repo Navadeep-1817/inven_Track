@@ -201,7 +201,7 @@ const ManagerComplaints = () => {
     <div className="complaints-container-mngcmp">
       <div className="complaints-header-mngcmp">
         <div className="header-content-mngcmp">
-          <h1 className="complaints-title-mngcmp">Manager - Complaints Management</h1>
+          <h1 className="complaints-title-mngcmp">Complaints</h1>
           <p className="complaints-subtitle-mngcmp">Review and respond to complaints from your branch staff</p>
         </div>
         <button 

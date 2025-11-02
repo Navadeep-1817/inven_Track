@@ -1,7 +1,7 @@
 /* === Manager Low Stock Alerts - Modern Theme === */
 .low-stock-container-man-alt {
   min-height: 100vh;
-  background: #e7e7fc;
+  background: #ffffff;
   padding: 2rem;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   color: #1e293b;
@@ -175,21 +175,7 @@
   height: 4px;
 }
 
-.stat-card-man-alt.critical-man-alt::before {
-  background: #ef4444;
-}
 
-.stat-card-man-alt.low-man-alt::before {
-  background: #f59e0b;
-}
-
-.stat-card-man-alt.medium-man-alt::before {
-  background: #eab308;
-}
-
-.stat-card-man-alt.total-man-alt::before {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-}
 
 
 

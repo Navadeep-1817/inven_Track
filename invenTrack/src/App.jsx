@@ -18,6 +18,7 @@ import Dashboard from "./pages/DashBoard.jsx";
 import Branch from "./pages/Branch.jsx";
 import LowStockAlerts from "./pages/LowStockAlerts.jsx";
 import AdminComplaints from "./pages/AdminComplaints.jsx";
+import Appraisal from "./pages/Appraisal.jsx";
 
 // Import Manager pages
 import Attendance from "./pages/manager/Attendance.jsx";
@@ -88,6 +89,7 @@ function App() {
                   <Route path="/adminComplaints" element={<AdminComplaints />} />
                   <Route path="/staff" element={<Staff />} />
                   <Route path="/branch" element={<Branch />} />
+                  <Route path="/appraisal" element={<Appraisal />} />
                   <Route path="/aboutus" element={<AboutUs />} />
                   <Route path="/logout" element={<Logout />} />
                 </Routes>

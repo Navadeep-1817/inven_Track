@@ -76,8 +76,9 @@
 
 .stat-card-mngcmp {
   padding: 1.5rem;
-  background: white;
+  background: rgba(52, 79, 230, 0.215);
   border-radius: 12px;
+  color: black;
   border: 0.1px solid rgba(26, 40, 200, 0.314);
 }
 .stat-card-mngcmp:hover {

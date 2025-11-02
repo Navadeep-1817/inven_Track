@@ -14,7 +14,7 @@ function ManagerNavbar() {
         <button onClick={()=> navigate("/managerDashboard/managerInventory")}>Inventory</button>
         <button onClick={()=> navigate("/managerDashboard/managerLowStockAlerts")}>ALerts</button>
         <button onClick={()=> navigate("/managerDashboard/managerComplaints")}>Complaints</button>
-        <button onClick={()=> navigate("/managerDashboard/staff")}>Staff</button>
+        <button onClick={()=> navigate("/managerDashboard/staff")}>Appraisals</button>
         
       </div>
       <div className="navbar-right">

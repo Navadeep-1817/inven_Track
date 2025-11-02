@@ -242,7 +242,7 @@ const AdminComplaints = () => {
     <div className="complaints-container-admcmp">
       <div className="complaints-header-admcmp">
         <div>
-          <h1 className="complaints-title-admcmp">SuperAdmin - Complaints Management</h1>
+          <h1 className="complaints-title-admcmp">Complaints</h1>
           <p className="complaints-subtitle-admcmp">View and manage complaints from all branches</p>
         </div>
         <button 
