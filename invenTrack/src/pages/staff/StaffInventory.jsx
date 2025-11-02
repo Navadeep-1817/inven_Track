@@ -24,12 +24,10 @@ const StaffInventory = () => {
       try {
         setLoading(true);
         setError("");
-        
-        console.log("🔍 Fetching staff info...");
+      
         
         // Get staff's info
         const userRes = await axiosInstance.get("/auth/me");
-        console.log("👤 Staff user data:", userRes.data);
         
         const { branch_id } = userRes.data;
         setUserBranch(branch_id);
@@ -185,7 +183,6 @@ const StaffInventory = () => {
         <div className="inventory-header-staff-inv">
           <p className="branch-info-staff-inv">Branch ID: <strong>{userBranch}</strong></p>
           <div className="view-only-badge-staff-inv">
-            <span className="badge-icon-staff-inv">👁️</span>
             Read-Only Access
           </div>
         </div>
@@ -246,7 +243,7 @@ const StaffInventory = () => {
             />
           </div>
           <button className="reset-btn-staff-inv" onClick={resetFilters}>
-            🔄 Reset Filters
+           Reset Filters
           </button>
         </div>
 
@@ -394,7 +391,6 @@ const StaffInventory = () => {
 
         {/* Info Banner */}
         <div className="info-banner-staff-inv">
-          <span className="info-icon-staff-inv">ℹ️</span>
           <p>You have read-only access to this inventory. Contact your manager for product updates.</p>
         </div>
       </div>

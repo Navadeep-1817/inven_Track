@@ -344,16 +344,16 @@ const ManagerLowStockAlerts = () => {
 
         {/* Filters */}
         <div className="filters-section-man-alt">
+          {/* Search Bar - Updated */}
           <div className="search-bar-man-alt">
-            <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-            <input
-              type="text"
-              placeholder="Search by name, brand, or PID..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              style={{ paddingLeft: '36px' }}
-            />
-          </div>
+              <FaSearch className="search-icon-man-alt" />
+      <input
+    type="text"
+    placeholder="Search by name, brand, or PID..."
+    value={filters.search}
+    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+  />
+</div>
 
           <div className="filters-grid-man-alt">
             <select

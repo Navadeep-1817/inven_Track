@@ -2,7 +2,7 @@
 
 .low-stock-container-staff-alt {
   min-height: 100vh;
-  background: #e7e7fc;
+  background: #ffffff;
   padding: 2rem;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
@@ -14,7 +14,7 @@
 
 /* Header Section */
 .low-stock-header-staff-alt {
-  background:rgb(177, 110, 240);
+  background:rgb(120, 144, 248);
   padding: 2rem;
   border-radius: 20px;
   color: white;
@@ -306,7 +306,7 @@
 }
 
 .low-stock-table-staff-alt thead {
-  background: linear-gradient(135deg, #1e293b, #334155);
+  background: rgb(120, 144, 248);
 }
 
 .low-stock-table-staff-alt th {

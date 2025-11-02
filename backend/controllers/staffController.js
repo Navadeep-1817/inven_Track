@@ -10,7 +10,7 @@ const getStaffByBranchId = async (req, res) => {
         // Find users, exclude password, and sort by name
         const staffInBranch = await User.find({ branch_id: branchId })
             .select('-password')
-            .sort({ name: 1 });
+            .sort({ name: 1 }); 
             
         res.status(200).json(staffInBranch);
     } catch (err) {

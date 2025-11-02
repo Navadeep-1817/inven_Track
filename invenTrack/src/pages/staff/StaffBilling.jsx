@@ -1,6 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import "../../styles/StaffBilling.css";
+import { 
+  FaFileInvoice, 
+  FaUser, 
+  FaSearch, 
+  FaShoppingCart, 
+  FaCog, 
+  FaMoneyBillWave, 
+  FaPlus, 
+  FaMinus, 
+  FaTrash, 
+  FaFilePdf, 
+  FaEnvelope, 
+  FaArrowLeft,
+  FaSave,
+  FaStore
+} from "react-icons/fa";
 
 const StaffBilling = () => {
   const [branchInfo, setBranchInfo] = useState(null);
@@ -8,7 +24,6 @@ const StaffBilling = () => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Customer Info
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     phone: "",
@@ -16,30 +31,26 @@ const StaffBilling = () => {
     address: "",
   });
 
-  // Cart Items
   const [cartItems, setCartItems] = useState([]);
   
-  // Search for products
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
-  // Bill Settings
   const [gstRate, setGstRate] = useState(18);
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [notes, setNotes] = useState("");
 
-  // Generated Bill
   const [generatedBill, setGeneratedBill] = useState(null);
   const [showBillPreview, setShowBillPreview] = useState(false);
   const billRef = useRef(null);
 
-  // Email sending state
   const [sendingEmail, setSendingEmail] = useState(false);
-  
-  // Saving state
   const [savingBill, setSavingBill] = useState(false);
+
+  // Icon color constant
+  const iconColor = "#007bff";
 
   useEffect(() => {
     fetchInitialData();
@@ -49,11 +60,9 @@ const StaffBilling = () => {
     try {
       setLoading(true);
       
-      // Get staff info
       const staffRes = await axiosInstance.get("/auth/me");
-      console.log("📋 Staff Info Response:", staffRes.data);
+      console.log("Staff Info Response:", staffRes.data);
       
-      // Format staff info properly for the backend
       const formattedStaffInfo = {
         _id: staffRes.data._id || staffRes.data.id,
         name: staffRes.data.name,
@@ -62,15 +71,13 @@ const StaffBilling = () => {
       };
       
       setStaffInfo(formattedStaffInfo);
-      console.log("✅ Formatted Staff Info:", formattedStaffInfo);
+      console.log("Formatted Staff Info:", formattedStaffInfo);
       
       const branchId = staffRes.data.branch_id;
       
-      // Get branch details
       const branchRes = await axiosInstance.get("/branches");
       const branch = branchRes.data.find(b => b.branch_id === branchId);
       
-      // Format branch info properly
       const formattedBranchInfo = {
         branch_id: branch.branch_id,
         branch_name: branch.branch_name,
@@ -78,9 +85,8 @@ const StaffBilling = () => {
       };
       
       setBranchInfo(formattedBranchInfo);
-      console.log("✅ Formatted Branch Info:", formattedBranchInfo);
+      console.log("Formatted Branch Info:", formattedBranchInfo);
       
-      // Get inventory
       const invRes = await axiosInstance.get(`/inventory/${branchId}`);
       let inventoryData = Array.isArray(invRes.data) ? invRes.data : invRes.data.inventoryItems || [];
       setInventory(inventoryData);
@@ -93,7 +99,6 @@ const StaffBilling = () => {
     }
   };
 
-  // Search products
   useEffect(() => {
     if (searchQuery.trim().length > 0) {
       const results = inventory.filter(item =>
@@ -109,7 +114,6 @@ const StaffBilling = () => {
     }
   }, [searchQuery, inventory]);
 
-  // Add item to cart
   const addToCart = (product) => {
     const existingItem = cartItems.find(item => item.pid === product.pid);
     
@@ -131,7 +135,6 @@ const StaffBilling = () => {
     setShowSearchResults(false);
   };
 
-  // Update cart item quantity
   const updateQuantity = (pid, newQuantity) => {
     const product = inventory.find(p => p.pid === pid);
     
@@ -150,12 +153,10 @@ const StaffBilling = () => {
     ));
   };
 
-  // Remove item from cart
   const removeFromCart = (pid) => {
     setCartItems(cartItems.filter(item => item.pid !== pid));
   };
 
-  // Calculate totals
   const calculateTotals = () => {
     const subtotal = cartItems.reduce((sum, item) => {
       const price = parseFloat(item.price) || 0;
@@ -177,7 +178,6 @@ const StaffBilling = () => {
     };
   };
 
-  // Generate and save bill to backend
   const generateBill = async () => {
     if (!customerInfo.name || !customerInfo.phone) {
       alert("Please enter customer name and phone number!");
@@ -204,14 +204,12 @@ const StaffBilling = () => {
     try {
       const totals = calculateTotals();
       
-      // Validate totals are not NaN
       if (isNaN(totals.subtotal) || isNaN(totals.total)) {
         alert("Error calculating totals. Please check item prices.");
         setSavingBill(false);
         return;
       }
       
-      // Prepare bill data with proper structure matching backend expectations
       const billData = {
         customer: {
           name: customerInfo.name.trim(),
@@ -230,7 +228,7 @@ const StaffBilling = () => {
             brand: item.brand || "Unknown",
             price: price,
             quantity: quantity,
-            amount: parseFloat(amount.toFixed(2)) // ✅ REQUIRED FIELD
+            amount: parseFloat(amount.toFixed(2))
           };
         }),
         totals: {
@@ -244,22 +242,19 @@ const StaffBilling = () => {
         discount: parseFloat(discount) || 0,
         paymentMethod: paymentMethod || "Cash",
         notes: notes.trim(),
-        // ✅ Backend expects these exact field names
         branchId: branchInfo.branch_id,
         branchName: branchInfo.branch_name,
         branchLocation: branchInfo.branch_location || ""
       };
       
-      console.log("📤 Sending Bill Data:", JSON.stringify(billData, null, 2));
+      console.log("Sending Bill Data:", JSON.stringify(billData, null, 2));
       
-      // Save bill to backend
       const response = await axiosInstance.post('/bills', billData);
       
-      console.log("📥 Bill Response:", response.data);
+      console.log("Bill Response:", response.data);
       
       const savedBill = response.data;
       
-      // Format the bill for display
       const displayBill = {
         ...savedBill,
         billDate: new Date(savedBill.billDate).toLocaleString('en-IN', {
@@ -284,38 +279,34 @@ const StaffBilling = () => {
       setGeneratedBill(displayBill);
       setShowBillPreview(true);
       
-      // Refresh inventory after successful bill creation
       await fetchInitialData();
       
-      alert("✅ Bill saved successfully!");
+      alert("Bill saved successfully!");
       
     } catch (error) {
-      console.error("❌ Error saving bill:", error);
+      console.error("Error saving bill:", error);
       console.error("Error response:", error.response?.data);
       
       if (error.response) {
         const errorMessage = error.response.data.message || "Failed to save bill";
-        alert(`❌ ${errorMessage}`);
+        alert(`${errorMessage}`);
         
-        // If it's an inventory issue, refresh the inventory
         if (errorMessage.includes("not found in inventory") || 
             errorMessage.includes("Insufficient stock")) {
           await fetchInitialData();
         }
       } else {
-        alert("❌ Failed to save bill. Please check your connection and try again.");
+        alert("Failed to save bill. Please check your connection and try again.");
       }
     } finally {
       setSavingBill(false);
     }
   };
 
-  // Download as PDF (using browser print)
   const downloadPDF = () => {
     window.print();
   };
 
-  // Send email
   const sendEmail = async () => {
     if (!customerInfo.email) {
       alert("Please enter customer email!");
@@ -336,17 +327,16 @@ const StaffBilling = () => {
       });
       
       if (response.data.success) {
-        alert(`✅ Bill sent successfully to ${customerInfo.email}!`);
+        alert(`Bill sent successfully to ${customerInfo.email}!`);
       }
     } catch (error) {
       console.error("Error sending email:", error);
-      alert("❌ Failed to send email. Please try again.");
+      alert("Failed to send email. Please try again.");
     } finally {
       setSendingEmail(false);
     }
   };
 
-  // Clear bill and start new
   const startNewBill = () => {
     setCustomerInfo({ name: "", phone: "", email: "", address: "" });
     setCartItems([]);
@@ -373,29 +363,34 @@ const StaffBilling = () => {
     <div className="billing-container-staff">
       <div className="billing-wrapper-staff">
         
-        {/* Header */}
         <div className="billing-header-staff">
           <div>
-            <h1 className="page-title-staff-bill">🧾 Billing System</h1>
+            <h1 className="page-title-staff-bill">
+              <FaFileInvoice style={{ marginRight: '10px', color: iconColor }} />
+              Billing System
+            </h1>
             <p className="page-subtitle-staff-bill">
+              <FaStore style={{ marginRight: '5px', color: iconColor }} />
               {branchInfo?.branch_name} - {staffInfo?.name}
             </p>
           </div>
           {generatedBill && (
             <button className="new-bill-btn-staff" onClick={startNewBill}>
-              ➕ New Bill
+              <FaPlus style={{ marginRight: '5px', color: 'white' }} />
+              New Bill
             </button>
           )}
         </div>
 
         {!showBillPreview ? (
           <div className="billing-content-staff">
-            {/* Left Side - Customer & Products */}
             <div className="billing-left-staff">
               
-              {/* Customer Information */}
               <div className="section-card-staff">
-                <h2 className="section-title-staff">👤 Customer Information</h2>
+                <h2 className="section-title-staff">
+                  <FaUser style={{ marginRight: '8px', color: iconColor }} />
+                  Customer Information
+                </h2>
                 <div className="form-grid-staff">
                   <div className="form-group-staff">
                     <label>Name *</label>
@@ -441,9 +436,11 @@ const StaffBilling = () => {
                 </div>
               </div>
 
-              {/* Product Search */}
               <div className="section-card-staff">
-                <h2 className="section-title-staff">🔍 Add Products</h2>
+                <h2 className="section-title-staff">
+                  <FaSearch style={{ marginRight: '8px', color: iconColor }} />
+                  Add Products
+                </h2>
                 <div className="search-box-staff">
                   <input
                     type="text"
@@ -475,13 +472,16 @@ const StaffBilling = () => {
                 </div>
               </div>
 
-              {/* Cart Items */}
               <div className="section-card-staff">
-                <h2 className="section-title-staff">🛒 Cart Items ({cartItems.length})</h2>
+                <h2 className="section-title-staff">
+                  <FaShoppingCart style={{ marginRight: '8px', color: iconColor }} />
+                  Cart Items ({cartItems.length})
+                </h2>
                 
                 {cartItems.length === 0 ? (
                   <div className="empty-cart-staff">
-                    <p>🛒 Cart is empty. Add products to start billing.</p>
+                    <FaShoppingCart style={{ fontSize: '48px', color: '#ccc', marginBottom: '10px' }} />
+                    <p>Cart is empty. Add products to start billing.</p>
                   </div>
                 ) : (
                   <div className="cart-items-staff">
@@ -494,9 +494,13 @@ const StaffBilling = () => {
                           <p className="item-price-staff">₹{item.price} per unit</p>
                         </div>
                         <div className="item-quantity-staff">
-                          <button onClick={() => updateQuantity(item.pid, item.quantity - 1)}>-</button>
+                          <button onClick={() => updateQuantity(item.pid, item.quantity - 1)}>
+                            <FaMinus style={{ color: iconColor }} />
+                          </button>
                           <span>{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.pid, item.quantity + 1)}>+</button>
+                          <button onClick={() => updateQuantity(item.pid, item.quantity + 1)}>
+                            <FaPlus style={{ color: iconColor }} />
+                          </button>
                         </div>
                         <div className="item-total-staff">
                           ₹{(item.price * item.quantity).toFixed(2)}
@@ -505,7 +509,7 @@ const StaffBilling = () => {
                           className="item-remove-staff"
                           onClick={() => removeFromCart(item.pid)}
                         >
-                          🗑️
+                          <FaTrash style={{ color: iconColor }} />
                         </button>
                       </div>
                     ))}
@@ -514,12 +518,13 @@ const StaffBilling = () => {
               </div>
             </div>
 
-            {/* Right Side - Summary */}
             <div className="billing-right-staff">
               
-              {/* Bill Settings */}
               <div className="section-card-staff">
-                <h2 className="section-title-staff">⚙️ Bill Settings</h2>
+                <h2 className="section-title-staff">
+                  <FaCog style={{ marginRight: '8px', color: iconColor }} />
+                  Bill Settings
+                </h2>
                 
                 <div className="form-group-staff">
                   <label>GST Rate (%)</label>
@@ -567,9 +572,11 @@ const StaffBilling = () => {
                 </div>
               </div>
 
-              {/* Bill Summary */}
               <div className="section-card-staff summary-card-staff">
-                <h2 className="section-title-staff">💰 Bill Summary</h2>
+                <h2 className="section-title-staff">
+                  <FaMoneyBillWave style={{ marginRight: '8px', color: iconColor }} />
+                  Bill Summary
+                </h2>
                 
                 <div className="summary-row-staff">
                   <span>Subtotal:</span>
@@ -605,31 +612,42 @@ const StaffBilling = () => {
                   onClick={generateBill}
                   disabled={cartItems.length === 0 || !customerInfo.name || !customerInfo.phone || savingBill}
                 >
-                  {savingBill ? "💾 Saving Bill..." : "🧾 Generate Bill"}
+                  {savingBill ? (
+                    <>
+                      <FaSave style={{ marginRight: '8px', color: 'white' }} />
+                      Saving Bill...
+                    </>
+                  ) : (
+                    <>
+                      <FaFileInvoice style={{ marginRight: '8px', color: 'white' }} />
+                      Generate Bill
+                    </>
+                  )}
                 </button>
               </div>
             </div>
           </div>
         ) : (
-          /* Bill Preview */
           <div className="bill-preview-container-staff">
             <div className="bill-actions-staff no-print">
               <button onClick={downloadPDF} className="action-btn-staff pdf-btn-staff">
-                📥 Download PDF
+                <FaFilePdf style={{ marginRight: '5px', color: 'white' }} />
+                Download PDF
               </button>
               <button 
                 onClick={sendEmail} 
                 className="action-btn-staff email-btn-staff"
                 disabled={!customerInfo.email || sendingEmail}
               >
-                {sendingEmail ? "📧 Sending..." : "📧 Email Bill"}
+                <FaEnvelope style={{ marginRight: '5px', color: 'white' }} />
+                {sendingEmail ? "Sending..." : "Email Bill"}
               </button>
               <button onClick={() => setShowBillPreview(false)} className="action-btn-staff back-btn-staff">
-                ← Back to Edit
+                <FaArrowLeft style={{ marginRight: '5px', color: 'white' }} />
+                Back to Edit
               </button>
             </div>
 
-            {/* Printable Bill */}
             <div className="bill-printable-staff" ref={billRef}>
               <div className="bill-header-print-staff">
                 <div className="company-info-staff">

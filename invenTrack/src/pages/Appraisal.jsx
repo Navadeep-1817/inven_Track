@@ -606,9 +606,7 @@ const Appraisal = () => {
 
   return (
     <div className="appraisal-container-appr">
-      <h1 className="appraisal-title-appr">Manager Appraisal & Salary Management</h1>
-      <p className="appraisal-subtitle-appr">Manage performance reviews and salary records for branch employees</p>
-
+      <h1 className="appraisal-title-appr">Appraisal & Salary</h1>
       <div className="tab-navigation-appr" style={{ marginBottom: "20px", borderBottom: "2px solid #ddd" }}>
         <button
           onClick={() => handleTabChange("appraisal")}

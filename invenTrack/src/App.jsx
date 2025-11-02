@@ -35,6 +35,7 @@ import ManagerNavbar from "./components/ManagerNavbar.jsx";
 import StaffNavbar from "./components/StaffNavbar.jsx";
 import ManagerLowStockAlerts from "./pages/manager/ManagerLowStockAlerts.jsx";
 import ManagerComplaints from "./pages/manager/ManagerComplaints.jsx";
+import ManagerAppraisal from "./pages/manager/ManagerAppraisals.jsx";
 
 import StaffInventory from "./pages/staff/StaffInventory.jsx";
 import StaffAlerts from "./pages/staff/StaffAlerts.jsx";
@@ -111,6 +112,7 @@ function App() {
                   <Route path="managerInventory" element={<ManageInventory />} />
                   <Route path="managerLowStockAlerts" element={<ManagerLowStockAlerts/>} />
                   <Route path="managerComplaints" element={<ManagerComplaints/>} />
+                  <Route path="managerAppraisal" element={<ManagerAppraisal/>} />
                   <Route path="aboutUs" element={<AboutUs />} />
                 </Routes>
                 {/* Manager-specific footer? */}

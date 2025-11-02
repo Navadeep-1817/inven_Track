@@ -19,6 +19,10 @@ const invoiceRoutes = require('./routes/invoiceRoutes');
 const complaintRoutes = require('./routes/complaintRoutes');
 const appraisalRoutes = require("./routes/appraisalRoutes");
 const salaryRoutes = require("./routes/salaryRoutes");
+const managerRoutes = require("./routes/managerRoutes");
+
+// Manager specific routes
+
 
 
 app.use("/api/auth", authRoutes);
@@ -31,6 +35,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use("/api/appraisals", appraisalRoutes);
 app.use("/api/salaries", salaryRoutes);
+app.use('/api/manager', managerRoutes);
 
 
 const PORT = process.env.PORT || 5000;
