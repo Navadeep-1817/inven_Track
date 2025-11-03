@@ -1327,12 +1327,10 @@ const Appraisal = () => {
 
                     <div className="appraisal-field-appr">
                       <strong>Allowances:</strong>
-                      <p className="appraisal-content-appr">
-                        HRA: {formatCurrency(salary.allowances?.hra || 0)}, 
-                        DA: {formatCurrency(salary.allowances?.da || 0)}, 
-                        Transport: {formatCurrency(salary.allowances?.transport || 0)}, 
-                        Medical: {formatCurrency(salary.allowances?.medical || 0)}
-                      </p>
+                        <p className="appraisal-content-appr">HRA: {formatCurrency(salary.allowances?.hra || 0)}</p>
+                        <p className="appraisal-content-appr">DA: {formatCurrency(salary.allowances?.da || 0)}</p>
+                        <p className="appraisal-content-appr">Transport: {formatCurrency(salary.allowances?.transport || 0)}</p>
+                        <p className="appraisal-content-appr">Medical: {formatCurrency(salary.allowances?.medical || 0)}</p>
                     </div>
 
                     <div className="appraisal-field-appr">

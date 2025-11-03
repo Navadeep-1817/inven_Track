@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Users, Calendar, Download, Store, Award, Activity } from 'lucide-react';
-import '../styles/Dashboard.css';
+import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Users, Calendar, Download, Store, Award, Activity, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -13,16 +12,16 @@ const Dashboard = () => {
   const [bills, setBills] = useState([]);
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
+    startDate: new Date(new Date().setDate(new Date().getDate() - 90)).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
   });
   const [view, setView] = useState('overview');
   const [attendance, setAttendance] = useState([]);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
 
-  // Get auth token
   const getAuthConfig = () => {
     const token = localStorage.getItem('token');
     return {
@@ -46,14 +45,12 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_BASE}/branches`);
-
       
       if (Array.isArray(response.data) && response.data.length > 0) {
         setBranches(response.data);
         setSelectedBranch(response.data[0]);
         setError(null);
       } else {
-        console.warn('⚠️ No branches found');
         setBranches([]);
         setError('No branches available. Please create a branch first.');
       }
@@ -67,17 +64,23 @@ const Dashboard = () => {
   };
 
   const fetchBranchData = async (branchId) => {
+    const isRefresh = refreshing;
+    if (!isRefresh) setLoading(true);
+    
     try {
-
+      console.log('🔄 Fetching data for branch:', branchId);
       
-      // Fetch inventory, bills, staff, and attendance in parallel
+      // Fetch data in parallel
       const [inventoryRes, billsRes, staffRes, attendanceRes] = await Promise.all([
         axios.get(`${API_BASE}/inventory/${branchId}`, getAuthConfig())
           .catch(err => {
             console.warn('⚠️ Inventory fetch error:', err.response?.data || err.message);
             return { data: [] };
           }),
-        axios.get(`${API_BASE}/bills/branch/${branchId}?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&limit=1000`, getAuthConfig())
+        axios.get(
+          `${API_BASE}/bills/branch/${branchId}?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&limit=10000`,
+          getAuthConfig()
+        )
           .catch(err => {
             console.warn('⚠️ Bills fetch error:', err.response?.data || err.message);
             return { data: { bills: [] } };
@@ -94,50 +97,134 @@ const Dashboard = () => {
           })
       ]);
 
-
-      setInventory(Array.isArray(inventoryRes.data) ? inventoryRes.data : []);
-      setBills(billsRes.data.bills || billsRes.data || []);
-      setStaff(Array.isArray(staffRes.data) ? staffRes.data : []);
+      // Process inventory data
+      const inventoryData = Array.isArray(inventoryRes.data) ? inventoryRes.data : [];
+      setInventory(inventoryData);
       
-      // Set attendance records from the API response
-      const attendanceData = attendanceRes.data.records || attendanceRes.data || [];
-      setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
+      // Process bills data - handle both response structures
+      const billsData = billsRes.data?.bills || billsRes.data || [];
+      const billsArray = Array.isArray(billsData) ? billsData : [];
+      setBills(billsArray);
+      
+      // Process staff data
+      const staffData = Array.isArray(staffRes.data) ? staffRes.data : [];
+      setStaff(staffData);
+      
+      // Process attendance data
+      const attendanceData = attendanceRes.data?.records || attendanceRes.data || [];
+      const attendanceArray = Array.isArray(attendanceData) ? attendanceData : [];
+      setAttendance(attendanceArray);
+      
+      console.log('✅ Data loaded:', {
+        branch: branchId,
+        inventory: inventoryData.length,
+        bills: billsArray.length,
+        staff: staffData.length,
+        attendance: attendanceArray.length,
+        dateRange: `${dateRange.startDate} to ${dateRange.endDate}`
+      });
       
       setError(null);
     } catch (error) {
       console.error('❌ Error fetching branch data:', error);
       setError('Failed to fetch some branch data.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const calculateMetrics = () => {
-    // Allow metrics even if only bills exist
-    if (!bills.length) {
-      console.warn('⚠️ No bills data available');
+  const handleRefresh = async () => {
+    if (selectedBranch) {
+      setRefreshing(true);
+      await fetchBranchData(selectedBranch.branch_id);
+    }
+  };
+
+  // Create inventory lookup map for performance
+  const inventoryMap = useMemo(() => {
+    const map = new Map();
+    inventory.forEach(item => {
+      if (item.pid) {
+        map.set(item.pid, item);
+      }
+    });
+    return map;
+  }, [inventory]);
+
+  // Memoize metrics calculation to prevent infinite re-renders
+  const metrics = useMemo(() => {
+    if (!bills || bills.length === 0) {
+      console.warn('⚠️ No bills data available for metrics calculation');
       return null;
     }
 
     const completedBills = bills.filter(b => b.status === 'completed');
+    
+    if (completedBills.length === 0) {
+      console.warn('⚠️ No completed bills in date range');
+      return null;
+    }
+
+    console.log('📊 Calculating metrics from', completedBills.length, 'completed bills');
+
     const totalRevenue = completedBills.reduce((sum, bill) => sum + (bill.totals?.total || 0), 0);
     const totalBills = completedBills.length;
     const avgBillValue = totalBills > 0 ? totalRevenue / totalBills : 0;
     
+    // Product sales analysis
     const productSales = {};
+    const brandRevenue = {};
+    const categoryRevenue = {};
+    
     completedBills.forEach(bill => {
-      bill.items?.forEach(item => {
-        if (!productSales[item.pid]) {
-          productSales[item.pid] = {
-            pid: item.pid,
-            name: item.name,
-            category: item.category,
+      if (!bill.items || !Array.isArray(bill.items)) return;
+      
+      bill.items.forEach(item => {
+        const pid = item.pid || 'unknown';
+        const inventoryItem = inventoryMap.get(pid);
+        const category = inventoryItem?.category || item.category || 'Uncategorized';
+        const brand = item.brand || 'Unknown';
+        
+        // Product sales
+        if (!productSales[pid]) {
+          productSales[pid] = {
+            pid: pid,
+            name: item.name || 'Unknown Product',
+            brand: brand,
+            category: category,
             totalQuantity: 0,
             totalRevenue: 0,
             billCount: 0
           };
         }
-        productSales[item.pid].totalQuantity += item.quantity;
-        productSales[item.pid].totalRevenue += item.amount;
-        productSales[item.pid].billCount += 1;
+        productSales[pid].totalQuantity += item.quantity || 0;
+        productSales[pid].totalRevenue += item.amount || (item.price * item.quantity) || 0;
+        productSales[pid].billCount += 1;
+        
+        // Brand performance
+        if (!brandRevenue[brand]) {
+          brandRevenue[brand] = { 
+            name: brand, 
+            revenue: 0, 
+            quantity: 0, 
+            products: new Set() 
+          };
+        }
+        brandRevenue[brand].revenue += item.amount || (item.price * item.quantity) || 0;
+        brandRevenue[brand].quantity += item.quantity || 0;
+        brandRevenue[brand].products.add(pid);
+        
+        // Category revenue
+        if (!categoryRevenue[category]) {
+          categoryRevenue[category] = { 
+            name: category, 
+            revenue: 0, 
+            quantity: 0 
+          };
+        }
+        categoryRevenue[category].revenue += item.amount || (item.price * item.quantity) || 0;
+        categoryRevenue[category].quantity += item.quantity || 0;
       });
     });
 
@@ -149,51 +236,48 @@ const Dashboard = () => {
       .sort((a, b) => a.totalRevenue - b.totalRevenue)
       .slice(0, 5);
 
-    const categoryRevenue = {};
-    Object.values(productSales).forEach(product => {
-      const cat = product.category || 'Uncategorized';
-      if (!categoryRevenue[cat]) {
-        categoryRevenue[cat] = { name: cat, revenue: 0, quantity: 0 };
-      }
-      categoryRevenue[cat].revenue += product.totalRevenue;
-      categoryRevenue[cat].quantity += product.totalQuantity;
-    });
-
     const categoryData = Object.values(categoryRevenue)
+      .filter(cat => cat.revenue > 0)
       .sort((a, b) => b.revenue - a.revenue);
 
-    // Calculate brand-wise performance
-    const brandRevenue = {};
-    completedBills.forEach(bill => {
-      bill.items?.forEach(item => {
-        const brand = item.brand || 'Unknown';
-        if (!brandRevenue[brand]) {
-          brandRevenue[brand] = { name: brand, revenue: 0, quantity: 0, products: 0 };
-        }
-        brandRevenue[brand].revenue += item.amount;
-        brandRevenue[brand].quantity += item.quantity;
-        brandRevenue[brand].products += 1;
-      });
-    });
-
     const brandData = Object.values(brandRevenue)
+      .map(brand => ({
+        name: brand.name,
+        revenue: brand.revenue,
+        quantity: brand.quantity,
+        products: brand.products.size
+      }))
       .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 10); // Top 10 brands
+      .slice(0, 10);
 
+    // Revenue trend
     const revenueTrend = {};
     completedBills.forEach(bill => {
-      const date = new Date(bill.billDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      if (!revenueTrend[date]) {
-        revenueTrend[date] = { date, revenue: 0, bills: 0 };
+      const billDate = new Date(bill.billDate);
+      const dateKey = billDate.toISOString().split('T')[0];
+      const displayDate = billDate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+      });
+      
+      if (!revenueTrend[dateKey]) {
+        revenueTrend[dateKey] = { 
+          dateKey, 
+          date: displayDate, 
+          revenue: 0, 
+          bills: 0,
+          timestamp: billDate.getTime()
+        };
       }
-      revenueTrend[date].revenue += bill.totals?.total || 0;
-      revenueTrend[date].bills += 1;
+      revenueTrend[dateKey].revenue += bill.totals?.total || 0;
+      revenueTrend[dateKey].bills += 1;
     });
 
-    const trendData = Object.values(revenueTrend).sort((a, b) => 
-      new Date(a.date) - new Date(b.date)
-    );
+    const trendData = Object.values(revenueTrend)
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map(({ date, revenue, bills }) => ({ date, revenue, bills }));
 
+    // Payment methods
     const paymentMethods = {};
     completedBills.forEach(bill => {
       const method = bill.paymentMethod || 'Cash';
@@ -204,12 +288,14 @@ const Dashboard = () => {
       paymentMethods[method].revenue += bill.totals?.total || 0;
     });
 
+    // Inventory metrics
     const totalProducts = inventory.length;
     const totalStock = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
     const totalInventoryValue = inventory.reduce((sum, item) => 
       sum + ((item.price || 0) * (item.quantity || 0)), 0
     );
 
+    // Staff performance
     const staffPerformance = {};
     completedBills.forEach(bill => {
       const staffName = bill.staffName || 'Unknown';
@@ -224,6 +310,7 @@ const Dashboard = () => {
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 5);
 
+    // Growth rate calculation
     const midPoint = new Date((new Date(dateRange.startDate).getTime() + new Date(dateRange.endDate).getTime()) / 2);
     const firstHalfRevenue = completedBills
       .filter(b => new Date(b.billDate) < midPoint)
@@ -233,7 +320,7 @@ const Dashboard = () => {
       .reduce((sum, b) => sum + (b.totals?.total || 0), 0);
     const growthRate = firstHalfRevenue > 0 ? ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100 : 0;
 
-    return {
+    const result = {
       totalRevenue,
       totalBills,
       avgBillValue,
@@ -250,9 +337,17 @@ const Dashboard = () => {
       topStaff,
       staffCount: staff.length
     };
-  };
 
-  const metrics = calculateMetrics();
+    console.log('✅ Metrics calculated (memoized):', {
+      totalBills: result.totalBills,
+      totalRevenue: result.totalRevenue.toFixed(2),
+      categories: result.categoryData.length,
+      brands: result.brandData.length,
+      trendPoints: result.trendData.length
+    });
+
+    return result;
+  }, [bills, inventory, inventoryMap, staff, dateRange.startDate, dateRange.endDate]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
@@ -263,6 +358,7 @@ const Dashboard = () => {
       branch: selectedBranch?.branch_name,
       location: selectedBranch?.branch_location,
       dateRange: dateRange,
+      generatedAt: new Date().toISOString(),
       summary: {
         totalRevenue: metrics.totalRevenue,
         totalBills: metrics.totalBills,
@@ -284,18 +380,16 @@ const Dashboard = () => {
     link.href = url;
     link.download = `${selectedBranch?.branch_name}_report_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
+    URL.revokeObjectURL(url);
   };
 
   const calculateAttendanceStats = () => {
-
     if (!attendance.length || !staff.length) {
-      console.warn('⚠️ Missing data - staff:', staff.length, 'attendance:', attendance.length);
       return [];
     }
 
     const staffAttendance = {};
     
-    // Initialize all staff
     staff.forEach(member => {
       staffAttendance[member._id] = {
         id: member._id,
@@ -308,14 +402,7 @@ const Dashboard = () => {
       };
     });
 
-
-    // Calculate attendance from records
-    attendance.forEach((record, recordIndex) => {
-      console.log(`📅 Processing record ${recordIndex + 1}:`, {
-        date: record.date,
-        staffCount: record.staff?.length || 0
-      });
-
+    attendance.forEach(record => {
       if (record.staff && Array.isArray(record.staff)) {
         record.staff.forEach(staffRecord => {
           if (staffAttendance[staffRecord.staff_id]) {
@@ -333,15 +420,14 @@ const Dashboard = () => {
       }
     });
 
-    const stats = Object.values(staffAttendance)
-      .filter(staff => staff.totalDays > 0) // Only include staff with attendance records
+    return Object.values(staffAttendance)
+      .filter(staff => staff.totalDays > 0)
       .map(staff => ({
         ...staff,
         attendancePercentage: staff.totalDays > 0 
           ? ((staff.presentDays + staff.lateDays) / staff.totalDays * 100).toFixed(1)
           : '0.0'
       }));
-    return stats;
   };
 
   const exportAttendanceCSV = () => {
@@ -370,13 +456,14 @@ const Dashboard = () => {
     link.href = url;
     link.download = `${selectedBranch?.branch_name}_attendance_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
+    URL.revokeObjectURL(url);
   };
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <div className="loading-container-dsb">
         <div className="loading-content-dsb">
-          <div className="loading-spinner-dsb"></div>
+          <div className="spinner-dsb"></div>
           <p className="loading-text-dsb">Loading dashboard...</p>
         </div>
       </div>
@@ -386,15 +473,11 @@ const Dashboard = () => {
   if (error && branches.length === 0) {
     return (
       <div className="dashboard-container-dsb">
-        <div className="dashboard-header-dsb">
-          <h1 className="dashboard-title-dsb">Branch Performance Dashboard</h1>
-        </div>
-        <div className="no-data-container-dsb">
-          <Store className="no-data-icon-dsb" size={48} />
-          <h3 className="no-data-title-dsb">No Branches Available</h3>
-          <p className="no-data-text-dsb">
-            {error || 'Please create a branch to start tracking performance.'}
-          </p>
+        <h1 className="dashboard-title-dsb">Branch Performance Dashboard</h1>
+        <div className="no-branches-dsb">
+          <Store size={48} className="no-branches-icon-dsb" />
+          <h3 className="no-branches-title-dsb">No Branches Available</h3>
+          <p className="no-branches-text-dsb">{error || 'Please create a branch to start tracking performance.'}</p>
         </div>
       </div>
     );
@@ -407,10 +490,10 @@ const Dashboard = () => {
         <p className="dashboard-subtitle-dsb">Monitor branch performance, revenue, and product analytics</p>
       </div>
 
-      <div className="controls-container-dsb">
-        <div className="controls-content-dsb">
+      <div className="controls-card-dsb">
+        <div className="controls-container-dsb">
           <div className="branch-selector-dsb">
-            <Store className="branch-icon-dsb" size={24} />
+            <Store size={24} className="branch-icon-dsb" />
             <select
               value={selectedBranch?.branch_id || ''}
               onChange={(e) => {
@@ -427,8 +510,8 @@ const Dashboard = () => {
             </select>
           </div>
 
-          <div className="date-range-selector-dsb">
-            <Calendar className="calendar-icon-dsb" size={20} />
+          <div className="date-range-dsb">
+            <Calendar size={20} className="date-icon-dsb" />
             <input
               type="date"
               value={dateRange.startDate}
@@ -444,15 +527,27 @@ const Dashboard = () => {
             />
           </div>
 
-          <button onClick={exportReport} className="export-button-dsb" disabled={!metrics}>
+          <button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className={`refresh-button-dsb ${refreshing ? 'refreshing-dsb' : ''}`}
+          >
+            <RefreshCw size={20} className={refreshing ? 'spinning-dsb' : ''} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+
+          <button 
+            onClick={exportReport} 
+            disabled={!metrics}
+            className={`export-button-dsb ${!metrics ? 'export-button-disabled-dsb' : ''}`}
+          >
             <Download size={20} />
             Export Report
           </button>
 
           <button 
-            onClick={() => setShowAttendanceModal(true)} 
-            className="export-button-dsb"
-            style={{ marginLeft: '10px', backgroundColor: '#10b981' }}
+            onClick={() => setShowAttendanceModal(true)}
+            className="attendance-button-dsb"
           >
             <Users size={20} />
             View Attendance
@@ -483,96 +578,116 @@ const Dashboard = () => {
                   icon={<DollarSign size={24} />}
                   change={metrics.growthRate}
                   positive={metrics.growthRate > 0}
-                  bgColor="metric-bg-blue-dsb"
-                  iconColor="metric-icon-blue-dsb"
+                  color="#3b82f6"
                 />
                 <MetricCard
                   title="Total Bills"
                   value={metrics.totalBills}
                   icon={<ShoppingCart size={24} />}
                   subtitle={`Avg: $${metrics.avgBillValue.toFixed(2)}`}
-                  bgColor="metric-bg-green-dsb"
-                  iconColor="metric-icon-green-dsb"
+                  color="#10b981"
                 />
                 <MetricCard
                   title="Products in Stock"
                   value={metrics.totalStock}
                   icon={<Package size={24} />}
                   subtitle={`${metrics.totalProducts} unique products`}
-                  bgColor="metric-bg-purple-dsb"
-                  iconColor="metric-icon-purple-dsb"
+                  color="#8b5cf6"
                 />
                 <MetricCard
                   title="Staff Members"
                   value={metrics.staffCount}
                   icon={<Users size={24} />}
                   subtitle="Active employees"
-                  bgColor="metric-bg-orange-dsb"
-                  iconColor="metric-icon-orange-dsb"
+                  color="#f59e0b"
                 />
               </div>
 
               <div className="charts-grid-dsb">
                 <div className="chart-card-dsb">
                   <h3 className="chart-title-dsb">
-                    <Activity size={20} className="chart-title-icon-dsb" />
+                    <Activity size={20} />
                     Revenue Trend
                   </h3>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={metrics.trendData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis dataKey="date" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                      <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
-                        formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="revenue" 
-                        stroke="#3b82f6" 
-                        strokeWidth={2}
-                        dot={{ fill: '#3b82f6', r: 4 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  {metrics.trendData && metrics.trendData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={metrics.trendData}>
+                        <CartesianGrid strokeDasharray="3 3" className="chart-grid-dsb" />
+                        <XAxis 
+                          dataKey="date" 
+                          className="chart-axis-dsb"
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                        />
+                        <YAxis className="chart-axis-dsb" />
+                        <Tooltip 
+                          className="chart-tooltip-dsb"
+                          formatter={(value) => [`$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, 'Revenue']}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="revenue" 
+                          stroke="#3b82f6" 
+                          strokeWidth={2}
+                          dot={{ fill: '#3b82f6', r: 4 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="no-data-dsb">
+                      <Activity size={48} className="no-data-icon-dsb" />
+                      <p>No revenue trend data available</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="chart-card-dsb">
                   <h3 className="chart-title-dsb">Category Revenue</h3>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={metrics.categoryData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="revenue"
-                      >
-                        {metrics.categoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  {metrics.categoryData && metrics.categoryData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={metrics.categoryData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                          outerRadius={90}
+                          fill="#8884d8"
+                          dataKey="revenue"
+                        >
+                          {metrics.categoryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => `$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="no-data-dsb">
+                      <Package size={48} className="no-data-icon-dsb" />
+                      <p>No category data available</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {metrics.topStaff.length > 0 && (
-                <div className="staff-performance-card-dsb">
-                  <h3 className="staff-performance-title-dsb">
-                    <Award size={20} className="staff-performance-icon-dsb" />
+              {metrics.topStaff && metrics.topStaff.length > 0 && (
+                <div className="staff-card-dsb">
+                  <h3 className="staff-title-dsb">
+                    <Award size={20} />
                     Top Performing Staff
                   </h3>
                   <div className="staff-grid-dsb">
                     {metrics.topStaff.map((staff, index) => (
                       <div key={staff.name} className="staff-item-dsb">
                         <div className="staff-header-dsb">
-                          <span className={`staff-rank-dsb staff-rank-${index + 1}-dsb`}>
+                          <span className={`staff-rank-dsb ${
+                            index === 0 ? 'staff-rank-gold-dsb' : 
+                            index === 1 ? 'staff-rank-silver-dsb' : 
+                            'staff-rank-bronze-dsb'
+                          }`}>
                             #{index + 1}
                           </span>
                           <span className="staff-bills-dsb">{staff.bills} bills</span>
@@ -586,140 +701,65 @@ const Dashboard = () => {
                   </div>
                 </div>
               )}
-
-              <div className="payment-methods-card-dsb">
-                <h3 className="payment-methods-title-dsb">Payment Methods</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={metrics.paymentMethods}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
-                      formatter={(value, name) => [
-                        name === 'revenue' ? `$${value.toLocaleString()}` : value,
-                        name === 'revenue' ? 'Revenue' : 'Count'
-                      ]}
-                    />
-                    <Legend />
-                    <Bar dataKey="count" fill="#10b981" name="Transaction Count" />
-                    <Bar dataKey="revenue" fill="#3b82f6" name="Revenue" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
             </>
           )}
 
           {view === 'products' && (
             <>
-              {metrics.topProducts.length > 0 ? (
-                <>
-                  <div className="products-section-dsb">
-                    <h3 className="products-title-dsb">
-                      <TrendingUp size={20} className="products-icon-dsb" />
-                      Top 10 Performing Products
-                    </h3>
-                    <div className="products-table-container-dsb">
-                      <table className="products-table-dsb">
-                        <thead>
-                          <tr className="products-table-header-dsb">
-                            <th className="table-header-cell-dsb">Rank</th>
-                            <th className="table-header-cell-dsb">Product ID</th>
-                            <th className="table-header-cell-dsb">Name</th>
-                            <th className="table-header-cell-dsb">Category</th>
-                            <th className="table-header-cell-right-dsb">Units Sold</th>
-                            <th className="table-header-cell-right-dsb">Revenue</th>
-                            <th className="table-header-cell-right-dsb">Bills</th>
-                            <th className="table-header-cell-right-dsb">Avg/Bill</th>
+              {metrics.topProducts && metrics.topProducts.length > 0 ? (
+                <div className="products-card-dsb">
+                  <h3 className="products-title-dsb">
+                    <TrendingUp size={20} className="trending-up-dsb" />
+                    Top 10 Performing Products
+                  </h3>
+                  <div className="table-container-dsb">
+                    <table className="products-table-dsb">
+                      <thead>
+                        <tr className="table-header-dsb">
+                          <th className="table-th-dsb">Rank</th>
+                          <th className="table-th-dsb">Product ID</th>
+                          <th className="table-th-dsb">Name</th>
+                          <th className="table-th-dsb">Brand</th>
+                          <th className="table-th-dsb">Category</th>
+                          <th className="table-th-dsb text-right-dsb">Units Sold</th>
+                          <th className="table-th-dsb text-right-dsb">Revenue</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {metrics.topProducts.map((product, index) => (
+                          <tr key={`${product.pid}-${index}`} className="table-row-dsb">
+                            <td className="table-td-dsb">
+                              <span className={`rank-badge-dsb ${
+                                index < 3 ? 'rank-badge-top-dsb' : 'rank-badge-other-dsb'
+                              }`}>
+                                {index + 1}
+                              </span>
+                            </td>
+                            <td className="table-td-dsb product-id-dsb">{product.pid}</td>
+                            <td className="table-td-dsb product-name-dsb">{product.name}</td>
+                            <td className="table-td-dsb">{product.brand}</td>
+                            <td className="table-td-dsb">
+                              <span className="category-badge-dsb">
+                                {product.category}
+                              </span>
+                            </td>
+                            <td className="table-td-dsb text-right-dsb quantity-dsb">
+                              {product.totalQuantity.toLocaleString()}
+                            </td>
+                            <td className="table-td-dsb text-right-dsb revenue-dsb">
+                              ${product.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {metrics.topProducts.map((product, index) => (
-                            <tr key={product.pid} className="table-row-dsb">
-                              <td className="table-cell-dsb">
-                                <span className={`rank-badge-dsb rank-badge-${index + 1}-dsb`}>
-                                  {index + 1}
-                                </span>
-                              </td>
-                              <td className="table-cell-dsb table-cell-medium-dsb">{product.pid}</td>
-                              <td className="table-cell-dsb">{product.name || 'N/A'}</td>
-                              <td className="table-cell-dsb">
-                                <span className="category-badge-dsb">
-                                  {product.category || 'N/A'}
-                                </span>
-                              </td>
-                              <td className="table-cell-right-dsb table-cell-medium-dsb">
-                                {product.totalQuantity.toLocaleString()}
-                              </td>
-                              <td className="table-cell-right-dsb table-cell-revenue-dsb">
-                                ${product.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                              </td>
-                              <td className="table-cell-right-dsb">{product.billCount}</td>
-                              <td className="table-cell-right-dsb">
-                                ${(product.totalRevenue / product.billCount).toFixed(2)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-
-                  {metrics.bottomProducts.length > 0 && (
-                    <div className="bottom-products-section-dsb">
-                      <h3 className="bottom-products-title-dsb">
-                        <TrendingDown size={20} className="bottom-products-icon-dsb" />
-                        Bottom 5 Performing Products (Action Required)
-                      </h3>
-                      <div className="products-table-container-dsb">
-                        <table className="products-table-dsb">
-                          <thead>
-                            <tr className="products-table-header-dsb">
-                              <th className="table-header-cell-dsb">Product ID</th>
-                              <th className="table-header-cell-dsb">Name</th>
-                              <th className="table-header-cell-dsb">Category</th>
-                              <th className="table-header-cell-right-dsb">Units Sold</th>
-                              <th className="table-header-cell-right-dsb">Revenue</th>
-                              <th className="table-header-cell-center-dsb">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {metrics.bottomProducts.map((product) => (
-                              <tr key={product.pid} className="table-row-bottom-dsb">
-                                <td className="table-cell-dsb table-cell-medium-dsb">{product.pid}</td>
-                                <td className="table-cell-dsb">{product.name || 'N/A'}</td>
-                                <td className="table-cell-dsb">
-                                  <span className="category-badge-gray-dsb">
-                                    {product.category || 'N/A'}
-                                  </span>
-                                </td>
-                                <td className="table-cell-right-dsb">{product.totalQuantity}</td>
-                                <td className="table-cell-right-dsb">
-                                  ${product.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                </td>
-                                <td className="table-cell-center-dsb">
-                                  <span className="status-badge-dsb">Low Sales</span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="recommendation-card-dsb">
-                        <p className="recommendation-text-dsb">
-                          <strong>Recommendation:</strong> Consider promotional strategies, price adjustments, or discontinuing these products based on profitability analysis.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </>
+                </div>
               ) : (
-                <div className="no-data-container-dsb">
-                  <Package className="no-data-icon-dsb" size={48} />
+                <div className="no-data-card-dsb">
+                  <Package size={48} className="no-data-icon-dsb" />
                   <h3 className="no-data-title-dsb">No Product Sales Data</h3>
-                  <p className="no-data-text-dsb">
-                    No products have been sold in the selected date range.
-                  </p>
+                  <p className="no-data-text-dsb">No products have been sold in the selected date range.</p>
                 </div>
               )}
             </>
@@ -727,38 +767,40 @@ const Dashboard = () => {
 
           {view === 'revenue' && (
             <>
-              <div className="revenue-summary-grid-dsb">
-                <div className="revenue-card-blue-dsb">
-                  <h3 className="revenue-card-label-dsb">Total Revenue</h3>
-                  <p className="revenue-card-value-dsb">
+              <div className="revenue-metrics-dsb">
+                <div className="revenue-metric-dsb revenue-total-dsb">
+                  <h3 className="revenue-metric-title-dsb">Total Revenue</h3>
+                  <p className="revenue-metric-value-dsb">
                     ${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="revenue-card-subtitle-dsb">From {metrics.totalBills} transactions</p>
+                  <p className="revenue-metric-subtitle-dsb">From {metrics.totalBills} transactions</p>
                 </div>
-                <div className="revenue-card-green-dsb">
-                  <h3 className="revenue-card-label-dsb">Average Bill Value</h3>
-                  <p className="revenue-card-value-dsb">${metrics.avgBillValue.toFixed(2)}</p>
-                  <p className="revenue-card-subtitle-dsb">Per transaction</p>
+                <div className="revenue-metric-dsb revenue-avg-dsb">
+                  <h3 className="revenue-metric-title-dsb">Average Bill Value</h3>
+                  <p className="revenue-metric-value-dsb">
+                    ${metrics.avgBillValue.toFixed(2)}
+                  </p>
+                  <p className="revenue-metric-subtitle-dsb">Per transaction</p>
                 </div>
-                <div className="revenue-card-purple-dsb">
-                  <h3 className="revenue-card-label-dsb">Inventory Value</h3>
-                  <p className="revenue-card-value-dsb">
+                <div className="revenue-metric-dsb revenue-inventory-dsb">
+                  <h3 className="revenue-metric-title-dsb">Inventory Value</h3>
+                  <p className="revenue-metric-value-dsb">
                     ${metrics.totalInventoryValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </p>
-                  <p className="revenue-card-subtitle-dsb">{metrics.totalStock} units in stock</p>
+                  <p className="revenue-metric-subtitle-dsb">{metrics.totalStock} units in stock</p>
                 </div>
               </div>
 
-              {metrics.categoryData.length > 0 && (
-                <div className="revenue-by-category-card-dsb">
-                  <h3 className="revenue-by-category-title-dsb">Revenue by Category</h3>
+              {metrics.categoryData && metrics.categoryData.length > 0 && (
+                <div className="chart-card-dsb">
+                  <h3 className="chart-title-dsb">Revenue by Category</h3>
                   <ResponsiveContainer width="100%" height={400}>
                     <BarChart data={metrics.categoryData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis type="number" stroke="#6b7280" />
-                      <YAxis dataKey="name" type="category" stroke="#6b7280" width={120} />
+                      <CartesianGrid strokeDasharray="3 3" className="chart-grid-dsb" />
+                      <XAxis type="number" className="chart-axis-dsb" />
+                      <YAxis dataKey="name" type="category" className="chart-axis-dsb" width={120} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
+                        className="chart-tooltip-dsb"
                         formatter={(value, name) => [
                           name === 'revenue' ? `${value.toLocaleString()}` : value,
                           name === 'revenue' ? 'Revenue' : 'Quantity'
@@ -771,83 +813,30 @@ const Dashboard = () => {
                   </ResponsiveContainer>
                 </div>
               )}
-
-              <div className="daily-revenue-card-dsb">
-                <h3 className="daily-revenue-title-dsb">Daily Revenue Breakdown</h3>
-                <div className="daily-revenue-table-container-dsb">
-                  <table className="daily-revenue-table-dsb">
-                    <thead>
-                      <tr className="daily-revenue-header-dsb">
-                        <th className="table-header-cell-dsb">Date</th>
-                        <th className="table-header-cell-right-dsb">Bills Count</th>
-                        <th className="table-header-cell-right-dsb">Revenue</th>
-                        <th className="table-header-cell-right-dsb">Avg Bill</th>
-                        <th className="table-header-cell-right-dsb">Performance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.trendData.slice().reverse().map((day) => {
-                        const avgBill = day.bills > 0 ? day.revenue / day.bills : 0;
-                        const performanceRating = day.revenue > metrics.avgBillValue * day.bills ? 'High' : 
-                                                 day.revenue > (metrics.avgBillValue * day.bills * 0.7) ? 'Medium' : 'Low';
-                        return (
-                          <tr key={day.date} className="daily-revenue-row-dsb">
-                            <td className="table-cell-dsb table-cell-medium-dsb">{day.date}</td>
-                            <td className="table-cell-right-dsb">{day.bills}</td>
-                            <td className="table-cell-right-dsb table-cell-bold-dsb">
-                              ${day.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className="table-cell-right-dsb">${avgBill.toFixed(2)}</td>
-                            <td className="table-cell-right-dsb">
-                              <span className={`performance-badge-dsb performance-badge-${performanceRating.toLowerCase()}-dsb`}>
-                                {performanceRating}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                    <tfoot>
-                      <tr className="daily-revenue-footer-dsb">
-                        <td className="table-cell-dsb table-cell-bold-dsb">Total</td>
-                        <td className="table-cell-right-dsb table-cell-bold-dsb">{metrics.totalBills}</td>
-                        <td className="table-cell-right-dsb table-footer-revenue-dsb">
-                          ${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </td>
-                        <td className="table-cell-right-dsb table-cell-bold-dsb">
-                          ${metrics.avgBillValue.toFixed(2)}
-                        </td>
-                        <td></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
             </>
           )}
 
           {view === 'brands' && (
             <>
-              <div className="revenue-by-category-card-dsb">
-                <h3 className="revenue-by-category-title-dsb">
-                  <Award size={20} style={{ marginRight: '8px' }} />
+              <div className="chart-card-dsb">
+                <h3 className="chart-title-dsb">
+                  <Award size={20} />
                   Brand-wise Performance
                 </h3>
                 {metrics.brandData && metrics.brandData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={500}>
-                    <BarChart data={metrics.brandData} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <BarChart data={metrics.brandData} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="chart-grid-dsb" />
                       <XAxis 
                         dataKey="name" 
-                        stroke="#6b7280" 
+                        className="chart-axis-dsb"
                         angle={-45}
                         textAnchor="end"
                         height={100}
-                        style={{ fontSize: '12px' }}
                       />
-                      <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                      <YAxis className="chart-axis-dsb" />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
+                        className="chart-tooltip-dsb"
                         formatter={(value, name) => {
                           if (name === 'revenue') return [`${value.toLocaleString()}`, 'Revenue'];
                           if (name === 'quantity') return [value.toLocaleString(), 'Units Sold'];
@@ -860,48 +849,48 @@ const Dashboard = () => {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="no-data-container-dsb" style={{ marginTop: '40px' }}>
-                    <Package className="no-data-icon-dsb" size={48} />
+                  <div className="no-data-dsb">
+                    <Package size={48} className="no-data-icon-dsb" />
                     <h3 className="no-data-title-dsb">No Brand Data</h3>
-                    <p className="no-data-text-dsb">
-                      No brand information available for the selected date range.
-                    </p>
+                    <p>No brand information available for the selected date range.</p>
                   </div>
                 )}
               </div>
 
               {metrics.brandData && metrics.brandData.length > 0 && (
-                <div className="products-section-dsb" style={{ marginTop: '30px' }}>
+                <div className="products-card-dsb" style={{ marginTop: '30px' }}>
                   <h3 className="products-title-dsb">Brand Performance Details</h3>
-                  <div className="products-table-container-dsb">
+                  <div className="table-container-dsb">
                     <table className="products-table-dsb">
                       <thead>
-                        <tr className="products-table-header-dsb">
-                          <th className="table-header-cell-dsb">Rank</th>
-                          <th className="table-header-cell-dsb">Brand Name</th>
-                          <th className="table-header-cell-right-dsb">Total Revenue</th>
-                          <th className="table-header-cell-right-dsb">Units Sold</th>
-                          <th className="table-header-cell-right-dsb">Products</th>
-                          <th className="table-header-cell-right-dsb">Avg Revenue/Unit</th>
+                        <tr className="table-header-dsb">
+                          <th className="table-th-dsb">Rank</th>
+                          <th className="table-th-dsb">Brand Name</th>
+                          <th className="table-th-dsb text-right-dsb">Total Revenue</th>
+                          <th className="table-th-dsb text-right-dsb">Units Sold</th>
+                          <th className="table-th-dsb text-right-dsb">Products</th>
+                          <th className="table-th-dsb text-right-dsb">Avg Revenue/Unit</th>
                         </tr>
                       </thead>
                       <tbody>
                         {metrics.brandData.map((brand, index) => (
-                          <tr key={brand.name} className="table-row-dsb">
-                            <td className="table-cell-dsb">
-                              <span className={`rank-badge-dsb rank-badge-${index + 1}-dsb`}>
+                          <tr key={`${brand.name}-${index}`} className="table-row-dsb">
+                            <td className="table-td-dsb">
+                              <span className={`rank-badge-dsb ${
+                                index < 3 ? 'rank-badge-top-dsb' : 'rank-badge-other-dsb'
+                              }`}>
                                 {index + 1}
                               </span>
                             </td>
-                            <td className="table-cell-dsb table-cell-medium-dsb">{brand.name}</td>
-                            <td className="table-cell-right-dsb table-cell-revenue-dsb">
+                            <td className="table-td-dsb product-name-dsb">{brand.name}</td>
+                            <td className="table-td-dsb text-right-dsb revenue-dsb">
                               ${brand.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </td>
-                            <td className="table-cell-right-dsb">
+                            <td className="table-td-dsb text-right-dsb">
                               {brand.quantity.toLocaleString()}
                             </td>
-                            <td className="table-cell-right-dsb">{brand.products}</td>
-                            <td className="table-cell-right-dsb">
+                            <td className="table-td-dsb text-right-dsb">{brand.products}</td>
+                            <td className="table-td-dsb text-right-dsb">
                               ${(brand.revenue / brand.quantity).toFixed(2)}
                             </td>
                           </tr>
@@ -915,27 +904,30 @@ const Dashboard = () => {
           )}
         </>
       ) : (
-        <div className="no-data-container-dsb">
-          <Package className="no-data-icon-dsb" size={48} />
+        <div className="no-data-card-dsb">
+          <Package size={48} className="no-data-icon-dsb" />
           <h3 className="no-data-title-dsb">No Data Available</h3>
-          <p className="no-data-text-dsb">
-            There is no sales data for the selected branch and date range.
-          </p>
+          <p className="no-data-text-dsb">There is no sales data for the selected branch and date range.</p>
         </div>
       )}
 
-      {/* Attendance Modal */}
       {showAttendanceModal && (
-        <div className="modal-overlay-dsb" onClick={() => setShowAttendanceModal(false)}>
-          <div className="modal-content-dsb" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="modal-overlay-dsb"
+          onClick={() => setShowAttendanceModal(false)}
+        >
+          <div 
+            className="modal-content-dsb"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header-dsb">
               <h2 className="modal-title-dsb">
-                <Users size={24} style={{ marginRight: '10px' }} />
+                <Users size={24} />
                 Staff Attendance Report - {selectedBranch?.branch_name}
               </h2>
               <button 
-                className="modal-close-dsb" 
                 onClick={() => setShowAttendanceModal(false)}
+                className="modal-close-dsb"
               >
                 ×
               </button>
@@ -946,54 +938,55 @@ const Dashboard = () => {
                 const stats = calculateAttendanceStats();
                 return stats.length > 0 ? (
                   <>
-                    <div className="attendance-summary-dsb">
+                    <div className="attendance-header-dsb">
                       <p>Showing attendance data for <strong>{attendance.length}</strong> days</p>
                       <button 
-                        onClick={exportAttendanceCSV} 
-                        className="export-button-dsb"
-                        style={{ marginTop: '10px' }}
+                        onClick={exportAttendanceCSV}
+                        className="export-csv-button-dsb"
                       >
                         <Download size={18} />
                         Export as CSV
                       </button>
                     </div>
 
-                    <div className="attendance-table-container-dsb">
-                      <table className="products-table-dsb">
+                    <div className="table-container-dsb">
+                      <table className="attendance-table-dsb">
                         <thead>
-                          <tr className="products-table-header-dsb">
-                            <th className="table-header-cell-dsb">Name</th>
-                            <th className="table-header-cell-dsb">Role</th>
-                            <th className="table-header-cell-right-dsb">Total Days</th>
-                            <th className="table-header-cell-right-dsb">Present</th>
-                            <th className="table-header-cell-right-dsb">Absent</th>
-                            <th className="table-header-cell-right-dsb">Late</th>
-                            <th className="table-header-cell-right-dsb">Attendance %</th>
+                          <tr className="table-header-dsb">
+                            <th className="table-th-dsb">Name</th>
+                            <th className="table-th-dsb">Role</th>
+                            <th className="table-th-dsb text-right-dsb">Total Days</th>
+                            <th className="table-th-dsb text-right-dsb">Present</th>
+                            <th className="table-th-dsb text-right-dsb">Absent</th>
+                            <th className="table-th-dsb text-right-dsb">Late</th>
+                            <th className="table-th-dsb text-right-dsb">Attendance %</th>
                           </tr>
                         </thead>
                         <tbody>
                           {stats.map((staffMember) => {
                             const percentage = parseFloat(staffMember.attendancePercentage);
-                            const performanceClass = percentage >= 90 ? 'high' : percentage >= 75 ? 'medium' : 'low';
+                            const bgClass = percentage >= 90 ? 'attendance-high-dsb' : percentage >= 75 ? 'attendance-medium-dsb' : 'attendance-low-dsb';
                             
                             return (
                               <tr key={staffMember.id} className="table-row-dsb">
-                                <td className="table-cell-dsb">{staffMember.name}</td>
-                                <td className="table-cell-dsb">
-                                  <span className="category-badge-dsb">{staffMember.role}</span>
+                                <td className="table-td-dsb">{staffMember.name}</td>
+                                <td className="table-td-dsb">
+                                  <span className="role-badge-dsb">
+                                    {staffMember.role}
+                                  </span>
                                 </td>
-                                <td className="table-cell-right-dsb">{staffMember.totalDays}</td>
-                                <td className="table-cell-right-dsb" style={{ color: '#10b981', fontWeight: 'bold' }}>
+                                <td className="table-td-dsb text-right-dsb">{staffMember.totalDays}</td>
+                                <td className="table-td-dsb text-right-dsb present-dsb">
                                   {staffMember.presentDays}
                                 </td>
-                                <td className="table-cell-right-dsb" style={{ color: '#ef4444', fontWeight: 'bold' }}>
+                                <td className="table-td-dsb text-right-dsb absent-dsb">
                                   {staffMember.absentDays}
                                 </td>
-                                <td className="table-cell-right-dsb" style={{ color: '#f59e0b', fontWeight: 'bold' }}>
+                                <td className="table-td-dsb text-right-dsb late-dsb">
                                   {staffMember.lateDays}
                                 </td>
-                                <td className="table-cell-right-dsb">
-                                  <span className={`performance-badge-dsb performance-badge-${performanceClass}-dsb`}>
+                                <td className="table-td-dsb text-right-dsb">
+                                  <span className={`attendance-percentage-dsb ${bgClass}`}>
                                     {staffMember.attendancePercentage}%
                                   </span>
                                 </td>
@@ -1005,10 +998,10 @@ const Dashboard = () => {
                     </div>
                   </>
                 ) : (
-                  <div className="no-data-container-dsb">
-                    <Users className="no-data-icon-dsb" size={48} />
+                  <div className="no-data-dsb">
+                    <Users size={48} className="no-data-icon-dsb" />
                     <h3 className="no-data-title-dsb">No Attendance Data</h3>
-                    <p className="no-data-text-dsb">
+                    <p>
                       {staff.length === 0 
                         ? 'No staff members found for this branch.'
                         : attendance.length === 0
@@ -1026,11 +1019,14 @@ const Dashboard = () => {
   );
 };
 
-const MetricCard = ({ title, value, icon, change, positive, subtitle, bgColor, iconColor }) => (
+const MetricCard = ({ title, value, icon, change, positive, subtitle, color }) => (
   <div className="metric-card-dsb">
-    <div className="metric-card-header-dsb">
-      <div className={`metric-icon-container-dsb ${bgColor}`}>
-        <span className={iconColor}>{icon}</span>
+    <div className="metric-header-dsb">
+      <div 
+        className="metric-icon-container-dsb"
+        style={{ backgroundColor: `${color}20`, color: color }}
+      >
+        {icon}
       </div>
       {change !== undefined && (
         <div className={`metric-change-dsb ${positive ? 'metric-change-positive-dsb' : 'metric-change-negative-dsb'}`}>
@@ -1039,9 +1035,9 @@ const MetricCard = ({ title, value, icon, change, positive, subtitle, bgColor, i
         </div>
       )}
     </div>
-    <h3 className="metric-card-title-dsb">{title}</h3>
-    <p className="metric-card-value-dsb">{value}</p>
-    {subtitle && <p className="metric-card-subtitle-dsb">{subtitle}</p>}
+    <h3 className="metric-title-dsb">{title}</h3>
+    <p className="metric-value-dsb">{value}</p>
+    {subtitle && <p className="metric-subtitle-dsb">{subtitle}</p>}
   </div>
 );
 

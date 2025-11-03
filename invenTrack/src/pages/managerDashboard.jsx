@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Users, Calendar, Download, Store, Award, Activity } from 'lucide-react';
-import '../styles/Dashboard.css';
+import '../styles/ManagerDashboard.css';
 import axios from 'axios';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -280,10 +280,10 @@ const ManagerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="loading-container-dsb">
-        <div className="loading-content-dsb">
-          <div className="loading-spinner-dsb"></div>
-          <p className="loading-text-dsb">Loading dashboard...</p>
+      <div className="loading-container-mngdsb">
+        <div className="loading-content-mngdsb">
+          <div className="loading-spinner-mngdsb"></div>
+          <p className="loading-text-mngdsb">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -291,14 +291,14 @@ const ManagerDashboard = () => {
 
   if (error || !branchInfo) {
     return (
-      <div className="dashboard-container-dsb">
-        <div className="dashboard-header-dsb">
-          <h1 className="dashboard-title-dsb">Branch Performance Dashboard</h1>
+      <div className="dashboard-container-mngdsb">
+        <div className="dashboard-header-mngdsb">
+          <h1 className="dashboard-title-mngdsb">Branch Performance Dashboard</h1>
         </div>
-        <div className="no-data-container-dsb">
-          <Store className="no-data-icon-dsb" size={48} />
-          <h3 className="no-data-title-dsb">Unable to Load Dashboard</h3>
-          <p className="no-data-text-dsb">
+        <div className="no-data-container-mngdsb">
+          <Store className="no-data-icon-mngdsb" size={48} />
+          <h3 className="no-data-title-mngdsb">Unable to Load Dashboard</h3>
+          <p className="no-data-text-mngdsb">
             {error || 'Unable to fetch branch information. Please contact administrator.'}
           </p>
         </div>
@@ -307,53 +307,53 @@ const ManagerDashboard = () => {
   }
 
   return (
-    <div className="dashboard-container-dsb">
-      <div className="dashboard-header-dsb">
-        <h1 className="dashboard-title-dsb">Branch Performance Dashboard</h1>
-        <p className="dashboard-subtitle-dsb">
+    <div className="dashboard-container-mngdsb">
+      <div className="dashboard-header-mngdsb">
+        <h1 className="dashboard-title-mngdsb">Branch Performance Dashboard</h1>
+        <p className="dashboard-subtitle-mngdsb">
           {branchInfo.branch_name} - {branchInfo.branch_location}
         </p>
       </div>
 
-      <div className="controls-container-dsb">
-        <div className="controls-content-dsb">
-          <div className="branch-selector-dsb" style={{ backgroundColor: '#f3f4f6', padding: '12px 20px', borderRadius: '8px' }}>
-            <Store className="branch-icon-dsb" size={24} />
-            <span style={{ fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+      <div className="controls-container-mngdsb">
+        <div className="controls-content-mngdsb">
+          <div className="branch-selector-mngdsb">
+            <Store className="branch-icon-mngdsb" size={24} />
+            <span className="branch-name-mngdsb">
               {branchInfo.branch_name}
             </span>
           </div>
 
-          <div className="date-range-selector-dsb">
-            <Calendar className="calendar-icon-dsb" size={20} />
+          <div className="date-range-selector-mngdsb">
+            <Calendar className="calendar-icon-mngdsb" size={20} />
             <input
               type="date"
               value={dateRange.startDate}
               onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-              className="date-input-dsb"
+              className="date-input-mngdsb"
             />
-            <span className="date-separator-dsb">to</span>
+            <span className="date-separator-mngdsb">to</span>
             <input
               type="date"
               value={dateRange.endDate}
               onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-              className="date-input-dsb"
+              className="date-input-mngdsb"
             />
           </div>
 
-          <button onClick={exportReport} className="export-button-dsb" disabled={!metrics}>
+          <button onClick={exportReport} className="export-button-mngdsb" disabled={!metrics}>
             <Download size={20} />
             Export Report
           </button>
         </div>
       </div>
 
-      <div className="view-tabs-dsb">
+      <div className="view-tabs-mngdsb">
         {['overview', 'products', 'revenue', 'brands'].map(tab => (
           <button
             key={tab}
             onClick={() => setView(tab)}
-            className={`view-tab-dsb ${view === tab ? 'view-tab-active-dsb' : ''}`}
+            className={`view-tab-mngdsb ${view === tab ? 'view-tab-active-mngdsb' : ''}`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
@@ -364,46 +364,46 @@ const ManagerDashboard = () => {
         <>
           {view === 'overview' && (
             <>
-              <div className="metrics-grid-dsb">
+              <div className="metrics-grid-mngdsb">
                 <MetricCard
                   title="Total Revenue"
                   value={`$${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                   icon={<DollarSign size={24} />}
                   change={metrics.growthRate}
                   positive={metrics.growthRate > 0}
-                  bgColor="metric-bg-blue-dsb"
-                  iconColor="metric-icon-blue-dsb"
+                  bgColor="metric-bg-blue-mngdsb"
+                  iconColor="metric-icon-blue-mngdsb"
                 />
                 <MetricCard
                   title="Total Bills"
                   value={metrics.totalBills}
                   icon={<ShoppingCart size={24} />}
                   subtitle={`Avg: $${metrics.avgBillValue.toFixed(2)}`}
-                  bgColor="metric-bg-green-dsb"
-                  iconColor="metric-icon-green-dsb"
+                  bgColor="metric-bg-green-mngdsb"
+                  iconColor="metric-icon-green-mngdsb"
                 />
                 <MetricCard
                   title="Products in Stock"
                   value={metrics.totalStock}
                   icon={<Package size={24} />}
                   subtitle={`${metrics.totalProducts} unique products`}
-                  bgColor="metric-bg-purple-dsb"
-                  iconColor="metric-icon-purple-dsb"
+                  bgColor="metric-bg-purple-mngdsb"
+                  iconColor="metric-icon-purple-mngdsb"
                 />
                 <MetricCard
                   title="Staff Members"
                   value={metrics.staffCount}
                   icon={<Users size={24} />}
                   subtitle="Active employees"
-                  bgColor="metric-bg-orange-dsb"
-                  iconColor="metric-icon-orange-dsb"
+                  bgColor="metric-bg-orange-mngdsb"
+                  iconColor="metric-icon-orange-mngdsb"
                 />
               </div>
 
-              <div className="charts-grid-dsb">
-                <div className="chart-card-dsb">
-                  <h3 className="chart-title-dsb">
-                    <Activity size={20} className="chart-title-icon-dsb" />
+              <div className="charts-grid-mngdsb">
+                <div className="chart-card-mngdsb">
+                  <h3 className="chart-title-mngdsb">
+                    <Activity size={20} className="chart-title-icon-mngdsb" />
                     Revenue Trend
                   </h3>
                   <ResponsiveContainer width="100%" height={300}>
@@ -426,8 +426,8 @@ const ManagerDashboard = () => {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="chart-card-dsb">
-                  <h3 className="chart-title-dsb">Category Revenue</h3>
+                <div className="chart-card-mngdsb">
+                  <h3 className="chart-title-mngdsb">Category Revenue</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
@@ -451,22 +451,22 @@ const ManagerDashboard = () => {
               </div>
 
               {metrics.topStaff.length > 0 && (
-                <div className="staff-performance-card-dsb">
-                  <h3 className="staff-performance-title-dsb">
-                    <Award size={20} className="staff-performance-icon-dsb" />
+                <div className="staff-performance-card-mngdsb">
+                  <h3 className="staff-performance-title-mngdsb">
+                    <Award size={20} className="staff-performance-icon-mngdsb" />
                     Top Performing Staff
                   </h3>
-                  <div className="staff-grid-dsb">
+                  <div className="staff-grid-mngdsb">
                     {metrics.topStaff.map((staff, index) => (
-                      <div key={staff.name} className="staff-item-dsb">
-                        <div className="staff-header-dsb">
-                          <span className={`staff-rank-dsb staff-rank-${index + 1}-dsb`}>
+                      <div key={staff.name} className="staff-item-mngdsb">
+                        <div className="staff-header-mngdsb">
+                          <span className={`staff-rank-mngdsb staff-rank-${index + 1}-mngdsb`}>
                             #{index + 1}
                           </span>
-                          <span className="staff-bills-dsb">{staff.bills} bills</span>
+                          <span className="staff-bills-mngdsb">{staff.bills} bills</span>
                         </div>
-                        <p className="staff-name-dsb">{staff.name}</p>
-                        <p className="staff-revenue-dsb">
+                        <p className="staff-name-mngdsb">{staff.name}</p>
+                        <p className="staff-revenue-mngdsb">
                           ${staff.revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </p>
                       </div>
@@ -475,8 +475,8 @@ const ManagerDashboard = () => {
                 </div>
               )}
 
-              <div className="payment-methods-card-dsb">
-                <h3 className="payment-methods-title-dsb">Payment Methods</h3>
+              <div className="payment-methods-card-mngdsb">
+                <h3 className="payment-methods-title-mngdsb">Payment Methods</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={metrics.paymentMethods}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -502,48 +502,48 @@ const ManagerDashboard = () => {
             <>
               {metrics.topProducts.length > 0 ? (
                 <>
-                  <div className="products-section-dsb">
-                    <h3 className="products-title-dsb">
-                      <TrendingUp size={20} className="products-icon-dsb" />
+                  <div className="products-section-mngdsb">
+                    <h3 className="products-title-mngdsb">
+                      <TrendingUp size={20} className="products-icon-mngdsb" />
                       Top 10 Performing Products
                     </h3>
-                    <div className="products-table-container-dsb">
-                      <table className="products-table-dsb">
+                    <div className="products-table-container-mngdsb">
+                      <table className="products-table-mngdsb">
                         <thead>
-                          <tr className="products-table-header-dsb">
-                            <th className="table-header-cell-dsb">Rank</th>
-                            <th className="table-header-cell-dsb">Product ID</th>
-                            <th className="table-header-cell-dsb">Name</th>
-                            <th className="table-header-cell-dsb">Category</th>
-                            <th className="table-header-cell-right-dsb">Units Sold</th>
-                            <th className="table-header-cell-right-dsb">Revenue</th>
-                            <th className="table-header-cell-right-dsb">Bills</th>
-                            <th className="table-header-cell-right-dsb">Avg/Bill</th>
+                          <tr className="products-table-header-mngdsb">
+                            <th className="table-header-cell-mngdsb">Rank</th>
+                            <th className="table-header-cell-mngdsb">Product ID</th>
+                            <th className="table-header-cell-mngdsb">Name</th>
+                            <th className="table-header-cell-mngdsb">Category</th>
+                            <th className="table-header-cell-right-mngdsb">Units Sold</th>
+                            <th className="table-header-cell-right-mngdsb">Revenue</th>
+                            <th className="table-header-cell-right-mngdsb">Bills</th>
+                            <th className="table-header-cell-right-mngdsb">Avg/Bill</th>
                           </tr>
                         </thead>
                         <tbody>
                           {metrics.topProducts.map((product, index) => (
-                            <tr key={product.pid} className="table-row-dsb">
-                              <td className="table-cell-dsb">
-                                <span className={`rank-badge-dsb rank-badge-${index + 1}-dsb`}>
+                            <tr key={product.pid} className="table-row-mngdsb">
+                              <td className="table-cell-mngdsb">
+                                <span className={`rank-badge-mngdsb rank-badge-${index + 1}-mngdsb`}>
                                   {index + 1}
                                 </span>
                               </td>
-                              <td className="table-cell-dsb table-cell-medium-dsb">{product.pid}</td>
-                              <td className="table-cell-dsb">{product.name || 'N/A'}</td>
-                              <td className="table-cell-dsb">
-                                <span className="category-badge-dsb">
+                              <td className="table-cell-mngdsb table-cell-medium-mngdsb">{product.pid}</td>
+                              <td className="table-cell-mngdsb">{product.name || 'N/A'}</td>
+                              <td className="table-cell-mngdsb">
+                                <span className="category-badge-mngdsb">
                                   {product.category || 'N/A'}
                                 </span>
                               </td>
-                              <td className="table-cell-right-dsb table-cell-medium-dsb">
+                              <td className="table-cell-right-mngdsb table-cell-medium-mngdsb">
                                 {product.totalQuantity.toLocaleString()}
                               </td>
-                              <td className="table-cell-right-dsb table-cell-revenue-dsb">
+                              <td className="table-cell-right-mngdsb table-cell-revenue-mngdsb">
                                 ${product.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </td>
-                              <td className="table-cell-right-dsb">{product.billCount}</td>
-                              <td className="table-cell-right-dsb">
+                              <td className="table-cell-right-mngdsb">{product.billCount}</td>
+                              <td className="table-cell-right-mngdsb">
                                 ${(product.totalRevenue / product.billCount).toFixed(2)}
                               </td>
                             </tr>
@@ -554,47 +554,47 @@ const ManagerDashboard = () => {
                   </div>
 
                   {metrics.bottomProducts.length > 0 && (
-                    <div className="bottom-products-section-dsb">
-                      <h3 className="bottom-products-title-dsb">
-                        <TrendingDown size={20} className="bottom-products-icon-dsb" />
+                    <div className="bottom-products-section-mngdsb">
+                      <h3 className="bottom-products-title-mngdsb">
+                        <TrendingDown size={20} className="bottom-products-icon-mngdsb" />
                         Bottom 5 Performing Products (Action Required)
                       </h3>
-                      <div className="products-table-container-dsb">
-                        <table className="products-table-dsb">
+                      <div className="products-table-container-mngdsb">
+                        <table className="products-table-mngdsb">
                           <thead>
-                            <tr className="products-table-header-dsb">
-                              <th className="table-header-cell-dsb">Product ID</th>
-                              <th className="table-header-cell-dsb">Name</th>
-                              <th className="table-header-cell-dsb">Category</th>
-                              <th className="table-header-cell-right-dsb">Units Sold</th>
-                              <th className="table-header-cell-right-dsb">Revenue</th>
-                              <th className="table-header-cell-center-dsb">Status</th>
+                            <tr className="products-table-header-mngdsb">
+                              <th className="table-header-cell-mngdsb">Product ID</th>
+                              <th className="table-header-cell-mngdsb">Name</th>
+                              <th className="table-header-cell-mngdsb">Category</th>
+                              <th className="table-header-cell-right-mngdsb">Units Sold</th>
+                              <th className="table-header-cell-right-mngdsb">Revenue</th>
+                              <th className="table-header-cell-center-mngdsb">Status</th>
                             </tr>
                           </thead>
                           <tbody>
                             {metrics.bottomProducts.map((product) => (
-                              <tr key={product.pid} className="table-row-bottom-dsb">
-                                <td className="table-cell-dsb table-cell-medium-dsb">{product.pid}</td>
-                                <td className="table-cell-dsb">{product.name || 'N/A'}</td>
-                                <td className="table-cell-dsb">
-                                  <span className="category-badge-gray-dsb">
+                              <tr key={product.pid} className="table-row-bottom-mngdsb">
+                                <td className="table-cell-mngdsb table-cell-medium-mngdsb">{product.pid}</td>
+                                <td className="table-cell-mngdsb">{product.name || 'N/A'}</td>
+                                <td className="table-cell-mngdsb">
+                                  <span className="category-badge-gray-mngdsb">
                                     {product.category || 'N/A'}
                                   </span>
                                 </td>
-                                <td className="table-cell-right-dsb">{product.totalQuantity}</td>
-                                <td className="table-cell-right-dsb">
+                                <td className="table-cell-right-mngdsb">{product.totalQuantity}</td>
+                                <td className="table-cell-right-mngdsb">
                                   ${product.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </td>
-                                <td className="table-cell-center-dsb">
-                                  <span className="status-badge-dsb">Low Sales</span>
+                                <td className="table-cell-center-mngdsb">
+                                  <span className="status-badge-mngdsb">Low Sales</span>
                                 </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       </div>
-                      <div className="recommendation-card-dsb">
-                        <p className="recommendation-text-dsb">
+                      <div className="recommendation-card-mngdsb">
+                        <p className="recommendation-text-mngdsb">
                           <strong>Recommendation:</strong> Consider promotional strategies, price adjustments, or discontinuing these products based on profitability analysis.
                         </p>
                       </div>
@@ -602,10 +602,10 @@ const ManagerDashboard = () => {
                   )}
                 </>
               ) : (
-                <div className="no-data-container-dsb">
-                  <Package className="no-data-icon-dsb" size={48} />
-                  <h3 className="no-data-title-dsb">No Product Sales Data</h3>
-                  <p className="no-data-text-dsb">
+                <div className="no-data-container-mngdsb">
+                  <Package className="no-data-icon-mngdsb" size={48} />
+                  <h3 className="no-data-title-mngdsb">No Product Sales Data</h3>
+                  <p className="no-data-text-mngdsb">
                     No products have been sold in the selected date range.
                   </p>
                 </div>
@@ -615,31 +615,31 @@ const ManagerDashboard = () => {
 
           {view === 'revenue' && (
             <>
-              <div className="revenue-summary-grid-dsb">
-                <div className="revenue-card-blue-dsb">
-                  <h3 className="revenue-card-label-dsb">Total Revenue</h3>
-                  <p className="revenue-card-value-dsb">
+              <div className="revenue-summary-grid-mngdsb">
+                <div className="revenue-card-blue-mngdsb">
+                  <h3 className="revenue-card-label-mngdsb">Total Revenue</h3>
+                  <p className="revenue-card-value-mngdsb">
                     ${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="revenue-card-subtitle-dsb">From {metrics.totalBills} transactions</p>
+                  <p className="revenue-card-subtitle-mngdsb">From {metrics.totalBills} transactions</p>
                 </div>
-                <div className="revenue-card-green-dsb">
-                  <h3 className="revenue-card-label-dsb">Average Bill Value</h3>
-                  <p className="revenue-card-value-dsb">${metrics.avgBillValue.toFixed(2)}</p>
-                  <p className="revenue-card-subtitle-dsb">Per transaction</p>
+                <div className="revenue-card-green-mngdsb">
+                  <h3 className="revenue-card-label-mngdsb">Average Bill Value</h3>
+                  <p className="revenue-card-value-mngdsb">${metrics.avgBillValue.toFixed(2)}</p>
+                  <p className="revenue-card-subtitle-mngdsb">Per transaction</p>
                 </div>
-                <div className="revenue-card-purple-dsb">
-                  <h3 className="revenue-card-label-dsb">Inventory Value</h3>
-                  <p className="revenue-card-value-dsb">
+                <div className="revenue-card-purple-mngdsb">
+                  <h3 className="revenue-card-label-mngdsb">Inventory Value</h3>
+                  <p className="revenue-card-value-mngdsb">
                     ${metrics.totalInventoryValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </p>
-                  <p className="revenue-card-subtitle-dsb">{metrics.totalStock} units in stock</p>
+                  <p className="revenue-card-subtitle-mngdsb">{metrics.totalStock} units in stock</p>
                 </div>
               </div>
 
               {metrics.categoryData.length > 0 && (
-                <div className="revenue-by-category-card-dsb">
-                  <h3 className="revenue-by-category-title-dsb">Revenue by Category</h3>
+                <div className="revenue-by-category-card-mngdsb">
+                  <h3 className="revenue-by-category-title-mngdsb">Revenue by Category</h3>
                   <ResponsiveContainer width="100%" height={400}>
                     <BarChart data={metrics.categoryData} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -660,17 +660,17 @@ const ManagerDashboard = () => {
                 </div>
               )}
 
-              <div className="daily-revenue-card-dsb">
-                <h3 className="daily-revenue-title-dsb">Daily Revenue Breakdown</h3>
-                <div className="daily-revenue-table-container-dsb">
-                  <table className="daily-revenue-table-dsb">
+              <div className="daily-revenue-card-mngdsb">
+                <h3 className="daily-revenue-title-mngdsb">Daily Revenue Breakdown</h3>
+                <div className="daily-revenue-table-container-mngdsb">
+                  <table className="daily-revenue-table-mngdsb">
                     <thead>
-                      <tr className="daily-revenue-header-dsb">
-                        <th className="table-header-cell-dsb">Date</th>
-                        <th className="table-header-cell-right-dsb">Bills Count</th>
-                        <th className="table-header-cell-right-dsb">Revenue</th>
-                        <th className="table-header-cell-right-dsb">Avg Bill</th>
-                        <th className="table-header-cell-right-dsb">Performance</th>
+                      <tr className="daily-revenue-header-mngdsb">
+                        <th className="table-header-cell-mngdsb">Date</th>
+                        <th className="table-header-cell-right-mngdsb">Bills Count</th>
+                        <th className="table-header-cell-right-mngdsb">Revenue</th>
+                        <th className="table-header-cell-right-mngdsb">Avg Bill</th>
+                        <th className="table-header-cell-right-mngdsb">Performance</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -679,15 +679,15 @@ const ManagerDashboard = () => {
                         const performanceRating = day.revenue > metrics.avgBillValue * day.bills ? 'High' : 
                                                  day.revenue > (metrics.avgBillValue * day.bills * 0.7) ? 'Medium' : 'Low';
                         return (
-                          <tr key={day.date} className="daily-revenue-row-dsb">
-                            <td className="table-cell-dsb table-cell-medium-dsb">{day.date}</td>
-                            <td className="table-cell-right-dsb">{day.bills}</td>
-                            <td className="table-cell-right-dsb table-cell-bold-dsb">
+                          <tr key={day.date} className="daily-revenue-row-mngdsb">
+                            <td className="table-cell-mngdsb table-cell-medium-mngdsb">{day.date}</td>
+                            <td className="table-cell-right-mngdsb">{day.bills}</td>
+                            <td className="table-cell-right-mngdsb table-cell-bold-mngdsb">
                               ${day.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </td>
-                            <td className="table-cell-right-dsb">${avgBill.toFixed(2)}</td>
-                            <td className="table-cell-right-dsb">
-                              <span className={`performance-badge-dsb performance-badge-${performanceRating.toLowerCase()}-dsb`}>
+                            <td className="table-cell-right-mngdsb">${avgBill.toFixed(2)}</td>
+                            <td className="table-cell-right-mngdsb">
+                              <span className={`performance-badge-mngdsb performance-badge-${performanceRating.toLowerCase()}-mngdsb`}>
                                 {performanceRating}
                               </span>
                             </td>
@@ -696,13 +696,13 @@ const ManagerDashboard = () => {
                       })}
                     </tbody>
                     <tfoot>
-                      <tr className="daily-revenue-footer-dsb">
-                        <td className="table-cell-dsb table-cell-bold-dsb">Total</td>
-                        <td className="table-cell-right-dsb table-cell-bold-dsb">{metrics.totalBills}</td>
-                        <td className="table-cell-right-dsb table-footer-revenue-dsb">
+                      <tr className="daily-revenue-footer-mngdsb">
+                        <td className="table-cell-mngdsb table-cell-bold-mngdsb">Total</td>
+                        <td className="table-cell-right-mngdsb table-cell-bold-mngdsb">{metrics.totalBills}</td>
+                        <td className="table-cell-right-mngdsb table-footer-revenue-mngdsb">
                           ${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="table-cell-right-dsb table-cell-bold-dsb">
+                        <td className="table-cell-right-mngdsb table-cell-bold-mngdsb">
                           ${metrics.avgBillValue.toFixed(2)}
                         </td>
                         <td></td>
@@ -716,8 +716,8 @@ const ManagerDashboard = () => {
 
           {view === 'brands' && (
             <>
-              <div className="revenue-by-category-card-dsb">
-                <h3 className="revenue-by-category-title-dsb">
+              <div className="revenue-by-category-card-mngdsb">
+                <h3 className="revenue-by-category-title-mngdsb">
                   <Award size={20} style={{ marginRight: '8px' }} />
                   Brand-wise Performance
                 </h3>
@@ -748,10 +748,10 @@ const ManagerDashboard = () => {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="no-data-container-dsb" style={{ marginTop: '40px' }}>
-                    <Package className="no-data-icon-dsb" size={48} />
-                    <h3 className="no-data-title-dsb">No Brand Data</h3>
-                    <p className="no-data-text-dsb">
+                  <div className="no-data-container-mngdsb" style={{ marginTop: '40px' }}>
+                    <Package className="no-data-icon-mngdsb" size={48} />
+                    <h3 className="no-data-title-mngdsb">No Brand Data</h3>
+                    <p className="no-data-text-mngdsb">
                       No brand information available for the selected date range.
                     </p>
                   </div>
@@ -759,37 +759,37 @@ const ManagerDashboard = () => {
               </div>
 
               {metrics.brandData && metrics.brandData.length > 0 && (
-                <div className="products-section-dsb" style={{ marginTop: '30px' }}>
-                  <h3 className="products-title-dsb">Brand Performance Details</h3>
-                  <div className="products-table-container-dsb">
-                    <table className="products-table-dsb">
+                <div className="products-section-mngdsb" style={{ marginTop: '30px' }}>
+                  <h3 className="products-title-mngdsb">Brand Performance Details</h3>
+                  <div className="products-table-container-mngdsb">
+                    <table className="products-table-mngdsb">
                       <thead>
-                        <tr className="products-table-header-dsb">
-                          <th className="table-header-cell-dsb">Rank</th>
-                          <th className="table-header-cell-dsb">Brand Name</th>
-                          <th className="table-header-cell-right-dsb">Total Revenue</th>
-                          <th className="table-header-cell-right-dsb">Units Sold</th>
-                          <th className="table-header-cell-right-dsb">Products</th>
-                          <th className="table-header-cell-right-dsb">Avg Revenue/Unit</th>
+                        <tr className="products-table-header-mngdsb">
+                          <th className="table-header-cell-mngdsb">Rank</th>
+                          <th className="table-header-cell-mngdsb">Brand Name</th>
+                          <th className="table-header-cell-right-mngdsb">Total Revenue</th>
+                          <th className="table-header-cell-right-mngdsb">Units Sold</th>
+                          <th className="table-header-cell-right-mngdsb">Products</th>
+                          <th className="table-header-cell-right-mngdsb">Avg Revenue/Unit</th>
                         </tr>
                       </thead>
                       <tbody>
                         {metrics.brandData.map((brand, index) => (
-                          <tr key={brand.name} className="table-row-dsb">
-                            <td className="table-cell-dsb">
-                              <span className={`rank-badge-dsb rank-badge-${index + 1}-dsb`}>
+                          <tr key={brand.name} className="table-row-mngdsb">
+                            <td className="table-cell-mngdsb">
+                              <span className={`rank-badge-mngdsb rank-badge-${index + 1}-mngdsb`}>
                                 {index + 1}
                               </span>
                             </td>
-                            <td className="table-cell-dsb table-cell-medium-dsb">{brand.name}</td>
-                            <td className="table-cell-right-dsb table-cell-revenue-dsb">
+                            <td className="table-cell-mngdsb table-cell-medium-mngdsb">{brand.name}</td>
+                            <td className="table-cell-right-mngdsb table-cell-revenue-mngdsb">
                               ${brand.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </td>
-                            <td className="table-cell-right-dsb">
+                            <td className="table-cell-right-mngdsb">
                               {brand.quantity.toLocaleString()}
                             </td>
-                            <td className="table-cell-right-dsb">{brand.products}</td>
-                            <td className="table-cell-right-dsb">
+                            <td className="table-cell-right-mngdsb">{brand.products}</td>
+                            <td className="table-cell-right-mngdsb">
                               ${(brand.revenue / brand.quantity).toFixed(2)}
                             </td>
                           </tr>
@@ -803,10 +803,10 @@ const ManagerDashboard = () => {
           )}
         </>
       ) : (
-        <div className="no-data-container-dsb">
-          <Package className="no-data-icon-dsb" size={48} />
-          <h3 className="no-data-title-dsb">No Data Available</h3>
-          <p className="no-data-text-dsb">
+        <div className="no-data-container-mngdsb">
+          <Package className="no-data-icon-mngdsb" size={48} />
+          <h3 className="no-data-title-mngdsb">No Data Available</h3>
+          <p className="no-data-text-mngdsb">
             There is no sales data for the selected date range.
           </p>
         </div>
@@ -816,21 +816,21 @@ const ManagerDashboard = () => {
 };
 
 const MetricCard = ({ title, value, icon, change, positive, subtitle, bgColor, iconColor }) => (
-  <div className="metric-card-dsb">
-    <div className="metric-card-header-dsb">
-      <div className={`metric-icon-container-dsb ${bgColor}`}>
+  <div className="metric-card-mngdsb">
+    <div className="metric-card-header-mngdsb">
+      <div className={`metric-icon-container-mngdsb ${bgColor}`}>
         <span className={iconColor}>{icon}</span>
       </div>
       {change !== undefined && (
-        <div className={`metric-change-dsb ${positive ? 'metric-change-positive-dsb' : 'metric-change-negative-dsb'}`}>
+        <div className={`metric-change-mngdsb ${positive ? 'metric-change-positive-mngdsb' : 'metric-change-negative-mngdsb'}`}>
           {positive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
           {Math.abs(change).toFixed(1)}%
         </div>
       )}
     </div>
-    <h3 className="metric-card-title-dsb">{title}</h3>
-    <p className="metric-card-value-dsb">{value}</p>
-    {subtitle && <p className="metric-card-subtitle-dsb">{subtitle}</p>}
+    <h3 className="metric-card-title-mngdsb">{title}</h3>
+    <p className="metric-card-value-mngdsb">{value}</p>
+    {subtitle && <p className="metric-card-subtitle-mngdsb">{subtitle}</p>}
   </div>
 );
 

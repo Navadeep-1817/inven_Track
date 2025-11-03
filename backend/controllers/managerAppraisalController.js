@@ -28,7 +28,10 @@ exports.getStaffByBranch = async (req, res) => {
     const staff = await User.find({
       branch_id: branchId,
       role: { $in: ["Staff", "Manager"] },
-    }).select("-password").sort({ name: 1 });
+    })
+      .select("-password")
+      .sort({ name: 1 })
+      .lean();
 
     console.log(`✅ Found ${staff.length} staff members`);
 
@@ -73,7 +76,7 @@ exports.createStaffAppraisal = async (req, res) => {
     }
 
     // Get staff member details
-    const staffMember = await User.findById(staff_id);
+    const staffMember = await User.findById(staff_id).lean();
     if (!staffMember) {
       return res.status(404).json({
         success: false,
@@ -133,6 +136,15 @@ exports.createStaffAppraisal = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error in createStaffAppraisal:", err);
+    
+    // Handle duplicate key error
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "An appraisal for this staff member in this period already exists.",
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Server error while creating appraisal.",
@@ -141,7 +153,7 @@ exports.createStaffAppraisal = async (req, res) => {
   }
 };
 
-// Get all appraisals for a specific branch
+// Get all appraisals for a specific branch - FIXED VERSION
 exports.getAppraisalsByBranch = async (req, res) => {
   try {
     const { branchId } = req.params;
@@ -163,11 +175,40 @@ exports.getAppraisalsByBranch = async (req, res) => {
       });
     }
 
+    // Fetch appraisals WITHOUT populate first
     const appraisals = await StaffAppraisal.find({ branch_id: branchId })
-      .populate("staff_id", "name email employee_id")
-      .sort({ review_year: -1, review_period: -1, createdAt: -1 });
+      .sort({ review_year: -1, review_period: -1, createdAt: -1 })
+      .lean();
 
     console.log(`✅ Found ${appraisals.length} appraisals`);
+
+    // Manually populate staff_id if needed
+    if (appraisals.length > 0) {
+      const staffIds = appraisals.map(a => a.staff_id).filter(Boolean);
+      
+      if (staffIds.length > 0) {
+        const staffMembers = await User.find({ _id: { $in: staffIds } })
+          .select('name email employee_id')
+          .lean();
+        
+        // Create a map for quick lookup
+        const staffMap = {};
+        staffMembers.forEach(staff => {
+          staffMap[staff._id.toString()] = staff;
+        });
+        
+        // Attach staff data to appraisals
+        appraisals.forEach(appraisal => {
+          if (appraisal.staff_id) {
+            appraisal.staff_id = staffMap[appraisal.staff_id.toString()] || {
+              _id: appraisal.staff_id,
+              name: appraisal.staff_name,
+              employee_id: appraisal.staff_employee_id
+            };
+          }
+        });
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -184,15 +225,12 @@ exports.getAppraisalsByBranch = async (req, res) => {
   }
 };
 
-// Get a specific appraisal by ID
+// Get a specific appraisal by ID - FIXED VERSION
 exports.getAppraisalById = async (req, res) => {
   try {
     const { appraisalId } = req.params;
 
-    const appraisal = await StaffAppraisal.findById(appraisalId).populate(
-      "staff_id",
-      "name email employee_id branch_id"
-    );
+    const appraisal = await StaffAppraisal.findById(appraisalId).lean();
 
     if (!appraisal) {
       return res.status(404).json({
@@ -207,6 +245,17 @@ exports.getAppraisalById = async (req, res) => {
         success: false,
         message: "You can only view appraisals from your branch.",
       });
+    }
+
+    // Manually populate staff_id
+    if (appraisal.staff_id) {
+      const staff = await User.findById(appraisal.staff_id)
+        .select('name email employee_id branch_id')
+        .lean();
+      
+      if (staff) {
+        appraisal.staff_id = staff;
+      }
     }
 
     res.status(200).json({
@@ -258,14 +307,14 @@ exports.updateStaffAppraisal = async (req, res) => {
     }
 
     // Update fields
-    appraisal.review_period = review_period || appraisal.review_period;
-    appraisal.review_year = review_year || appraisal.review_year;
-    appraisal.strengths = strengths || appraisal.strengths;
-    appraisal.areas_of_improvement = areas_of_improvement || appraisal.areas_of_improvement;
-    appraisal.achievements = achievements !== undefined ? achievements : appraisal.achievements;
-    appraisal.goals_for_next_period = goals_for_next_period !== undefined ? goals_for_next_period : appraisal.goals_for_next_period;
-    appraisal.overall_rating = overall_rating !== undefined ? overall_rating : appraisal.overall_rating;
-    appraisal.additional_comments = additional_comments !== undefined ? additional_comments : appraisal.additional_comments;
+    if (review_period) appraisal.review_period = review_period;
+    if (review_year) appraisal.review_year = review_year;
+    if (strengths) appraisal.strengths = strengths;
+    if (areas_of_improvement) appraisal.areas_of_improvement = areas_of_improvement;
+    if (achievements !== undefined) appraisal.achievements = achievements;
+    if (goals_for_next_period !== undefined) appraisal.goals_for_next_period = goals_for_next_period;
+    if (overall_rating !== undefined) appraisal.overall_rating = overall_rating;
+    if (additional_comments !== undefined) appraisal.additional_comments = additional_comments;
     appraisal.last_modified_by = req.user.id;
 
     await appraisal.save();
