@@ -40,13 +40,69 @@
 .footer-right a:hover {
   color: #82eca8;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 15px 20px;
+  }
+  
+  .footer h3 {
+    font-size: 1.2rem;
+  }
+  
+  .footer-left p {
+    font-size: 0.85rem;
+  }
+  
+  .footer-center {
+    font-size: 0.85rem;
+  }
+  
+  .footer-right a {
+    font-size: 0.9rem;
+    margin-left: 12px;
+  }
+}
+
 @media (max-width: 600px) {
   .footer {
     flex-direction: column;
     text-align: center;
+    padding: 20px 15px;
+    gap: 15px;
   }
 
   .footer-right {
     margin-top: 10px;
+  }
+  
+  .footer-right a {
+    display: inline-block;
+    margin: 5px 10px;
+  }
+  
+  .footer h3 {
+    font-size: 1.1rem;
+  }
+  
+  .footer-left p,
+  .footer-center {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 18px 12px;
+  }
+  
+  .footer h3 {
+    font-size: 1rem;
+  }
+  
+  .footer-right a {
+    font-size: 0.85rem;
+    margin: 5px 8px;
   }
 }

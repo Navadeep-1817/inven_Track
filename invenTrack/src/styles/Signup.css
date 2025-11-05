@@ -53,3 +53,52 @@
   margin-bottom: 15px;
   color: #333;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .signup-form {
+    margin: 40px 20px;
+    padding: 25px;
+    max-width: calc(100% - 40px);
+  }
+  
+  .signup-form::before {
+    font-size: 18px;
+  }
+  
+  .signup-form input,
+  .signup-form select {
+    padding: 11px;
+    font-size: 13px;
+  }
+  
+  .signup-form button {
+    padding: 11px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-form {
+    margin: 30px 15px;
+    padding: 20px;
+  }
+  
+  .signup-form::before {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .signup-form input,
+  .signup-form select {
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 12px;
+  }
+  
+  .signup-form button {
+    padding: 10px;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+}

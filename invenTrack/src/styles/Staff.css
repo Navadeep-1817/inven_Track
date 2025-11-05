@@ -181,3 +181,84 @@
 button {
   transition: all 0.25s ease-in-out;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 1024px) {
+  .staff-management-container {
+    padding: 18px;
+    margin: 20px auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .staff-management-container {
+    margin: 15px;
+    padding: 15px;
+    border-radius: 12px;
+  }
+  
+  .staff-management-container h2 {
+    font-size: 1.5rem;
+  }
+  
+  .branch-view h3,
+  .staff-view h3 {
+    font-size: 1.2rem;
+  }
+  
+  .branch-item,
+  .staff-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+  
+  .branch-item span,
+  .staff-item span {
+    width: 100%;
+    word-break: break-word;
+  }
+  
+  .operate-button,
+  .promote-button,
+  .demote-button,
+  .remove-button,
+  .back-button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    margin-right: 0;
+    margin-bottom: 6px;
+  }
+  
+  .staff-item {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .staff-management-container {
+    margin: 10px;
+    padding: 12px;
+  }
+  
+  .staff-management-container h2 {
+    font-size: 1.3rem;
+  }
+  
+  .branch-view h3,
+  .staff-view h3 {
+    font-size: 1.1rem;
+    padding-left: 8px;
+  }
+  
+  .operate-button,
+  .promote-button,
+  .demote-button,
+  .remove-button,
+  .back-button {
+    font-size: 0.85rem;
+    padding: 7px 12px;
+  }
+}

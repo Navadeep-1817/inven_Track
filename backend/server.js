@@ -20,10 +20,15 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // Check if origin is allowed
     if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+      console.error(`❌ CORS blocked origin: ${origin}`);
+      console.log('Allowed origins:', allowedOrigins);
+      // Return false instead of Error object
+      return callback(null, false);
     }
+    
+    console.log(`✅ CORS allowed origin: ${origin}`);
     return callback(null, true);
   },
   credentials: true, // Allow cookies/auth headers

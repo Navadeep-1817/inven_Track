@@ -44,3 +44,59 @@
 .landing-nav-links button:hover {
   opacity: 0.8;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 1024px) {
+  .landing-navbar {
+    padding: 15px 35px;
+  }
+  
+  .logo {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-navbar {
+    flex-direction: column;
+    padding: 15px 20px;
+    gap: 15px;
+  }
+  
+  .logo {
+    font-size: 20px;
+  }
+  
+  .landing-nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .landing-nav-links button {
+    padding: 8px 18px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-navbar {
+    padding: 12px 15px;
+  }
+  
+  .logo {
+    font-size: 18px;
+  }
+  
+  .landing-nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .landing-nav-links button {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+  }
+}

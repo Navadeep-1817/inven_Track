@@ -64,3 +64,100 @@
   color: #333;
   margin-top: 8px;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 1024px) {
+  .home-container {
+    padding: 30px 15px;
+  }
+  
+  .home-title {
+    font-size: 2.2rem;
+  }
+  
+  .home-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .brand-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-container {
+    padding: 25px 15px;
+  }
+  
+  .home-title {
+    font-size: 2rem;
+  }
+  
+  .home-subtitle {
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+  
+  .category-title {
+    font-size: 1.5rem;
+  }
+  
+  .brand-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  
+  .brand-card {
+    padding: 15px;
+  }
+  
+  .brand-card img {
+    max-width: 80px;
+  }
+  
+  .brand-card h3 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container {
+    padding: 20px 10px;
+  }
+  
+  .home-title {
+    font-size: 1.75rem;
+  }
+  
+  .home-subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .category-section {
+    margin-bottom: 40px;
+  }
+  
+  .category-title {
+    font-size: 1.3rem;
+    padding-left: 8px;
+    border-left-width: 4px;
+  }
+  
+  .brand-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .brand-card {
+    padding: 12px;
+  }
+  
+  .brand-card img {
+    max-width: 70px;
+  }
+  
+  .brand-card h3 {
+    font-size: 0.85rem;
+  }
+}
