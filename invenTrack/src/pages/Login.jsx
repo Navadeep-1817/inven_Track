@@ -1,6 +1,9 @@
 import { useState } from "react";
 import "../styles/Login.css";
 
+// ✅ Use environment variable for API URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 function Login() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +29,7 @@ function Login() {
     try {
       if (isSuperAdmin) {
         // 🔐 Super Admin Login
-        const res = await fetch("http://localhost:5000/api/auth/login-superadmin", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login-superadmin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ securityKey: form.securityKey }),
@@ -48,7 +51,7 @@ function Login() {
         window.location.href = "/home";
       } else {
         // 👨‍💼 Manager / Staff Login
-        const res = await fetch("http://localhost:5000/api/auth/login-employee", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login-employee`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
