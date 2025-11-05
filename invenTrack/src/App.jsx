@@ -26,7 +26,7 @@ import ManagerStaff from "./pages/manager/ManagerStaff.jsx";
 import ManageInventory from "./pages/manager/ManagerInventory.jsx";
 
 // Import Dashboards
-import ManagerDashboard from "./pages/ManagerDashboard.jsx";
+import ManagerDashboard from "./pages/managerDashboard.jsx";
 import SuperAdminDashboard from "./pages/superAdminDashboard.jsx";
 import StaffDashboard from "./pages/staffDashboard.jsx";
 

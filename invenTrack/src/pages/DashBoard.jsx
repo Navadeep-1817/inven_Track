@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Users, Calendar, Download, Store, Award, Activity, RefreshCw } from 'lucide-react';
 import axios from 'axios';
-
+import './../styles/Dashboard.css';
 const API_BASE = 'http://localhost:5000/api';
 
 const Dashboard = () => {
