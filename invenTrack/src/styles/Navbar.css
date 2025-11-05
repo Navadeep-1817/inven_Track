@@ -78,48 +78,76 @@
 
 @media (max-width: 768px) {
   .main-navbar {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    padding: 15px 20px;
-    gap: 15px;
+    flex-direction: row !important;
+    padding: 10px 15px;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
 
   .navbar-left,
   .navbar-right {
-    flex-direction: column !important;
-    width: 100%;
-    gap: 10px;
-    align-items: stretch;
+    flex-direction: row !important;
+    gap: 8px;
+    flex-shrink: 0;
   }
 
   .logo {
-    text-align: center;
-    margin-right: 0;
-    margin-bottom: 10px;
-    font-size: 22px;
+    font-size: 18px;
+    margin-right: 15px;
+    flex-shrink: 0;
   }
 
   .main-navbar button {
-    width: 100%;
-    text-align: center;
-    padding: 12px 14px;
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
     background: #f8f9fa;
     border: 1px solid #e0e0e0;
+    border-radius: 8px;
   }
 
-  .main-navbar button:hover {
+  .main-navbar button:hover,
+  .main-navbar button:active {
     background: #007bff;
     color: white;
+  }
+
+  /* Custom scrollbar for mobile */
+  .main-navbar::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .main-navbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .main-navbar::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 2px;
+  }
+
+  .main-navbar::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
   }
 }
 
 @media (max-width: 480px) {
   .main-navbar {
-    padding: 12px 15px;
+    padding: 8px 10px;
+  }
+  
+  .logo {
+    font-size: 16px;
+    margin-right: 12px;
   }
   
   .main-navbar button {
-    font-size: 14px;
-    padding: 9px 12px;
+    font-size: 12px;
+    padding: 7px 10px;
   }
 }
