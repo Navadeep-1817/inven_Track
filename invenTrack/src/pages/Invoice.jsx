@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import '../styles/Invoice.css';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = `${API_BASE_URL}/api`;
 
 const Invoice = () => {
   const [invoices, setInvoices] = useState([]);

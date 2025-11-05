@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./../../styles/Attendance.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function Attendance() {
   const [staffList, setStaffList] = useState([]);
   const [attendance, setAttendance] = useState({});
@@ -18,7 +20,7 @@ function Attendance() {
       try {
         const token = localStorage.getItem("token");
         
-        const response = await axios.get("http://localhost:5000/api/attendance/staff", {
+        const response = await axios.get(`${API_BASE_URL}/api/attendance/staff`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -52,7 +54,7 @@ function Attendance() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/attendance/records", {
+      const response = await axios.get(`${API_BASE_URL}/api/attendance/records`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -161,7 +163,7 @@ function Attendance() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/attendance/mark",
+        `${API_BASE_URL}/api/attendance/mark`,
         attendanceData,
         {
           headers: { Authorization: `Bearer ${token}` },

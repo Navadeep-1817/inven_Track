@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const mapContainerStyle = { 
     width: '100%', 
     height: '400px',
@@ -18,7 +20,7 @@ const LocationMap = ({ onLocationSelect }) => {
     useEffect(() => {
         const fetchApiKey = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/google-maps-key');
+                const response = await axios.get(`${API_BASE_URL}/api/google-maps-key`);
                 setApiKey(response.data.apiKey);
             } catch (error) {
                 console.error("Failed to fetch Google Maps API key", error);

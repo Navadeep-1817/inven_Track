@@ -54,9 +54,10 @@ const ManagerLowStockAlerts = () => {
         setError("");
         
         const token = localStorage.getItem("token");
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
         
         // Get manager's profile to get branch_id
-        const profileRes = await axiosInstance.get("http://localhost:5000/api/auth/profile", {
+        const profileRes = await axiosInstance.get(`${API_BASE_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         

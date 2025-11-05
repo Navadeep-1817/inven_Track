@@ -3,6 +3,9 @@ import axios from 'axios';
 import './../styles/Staff.css';
 
 const Staff = () => {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const API_BASE = `${API_BASE_URL}/api`;
+
     const [branches, setBranches] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState(null); // To hold the selected branch object
     const [currentStaff, setCurrentStaff] = useState([]); // To hold staff of the selected branch
@@ -14,7 +17,7 @@ const Staff = () => {
         const fetchBranches = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:5000/api/branches');
+                const response = await axios.get(`${API_BASE}/branches`);
                 setBranches(response.data);
                 setError(null);
             } catch (err) {
@@ -32,7 +35,7 @@ const Staff = () => {
         setSelectedBranch(branch);
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/api/staff/branches/${branch.branch_id}/staff`);
+            const response = await axios.get(`${API_BASE}/staff/branches/${branch.branch_id}/staff`);
             setCurrentStaff(response.data);
             setError(null);
         } catch (err) {
@@ -53,7 +56,7 @@ const Staff = () => {
     const handleRemoveStaff = async (staffId, staffName) => {
         if (window.confirm(`Are you sure you want to remove ${staffName}?`)) {
             try {
-                await axios.delete(`http://localhost:5000/api/staff/staff/${staffId}`);
+                await axios.delete(`${API_BASE}/staff/staff/${staffId}`);
                 // Update state locally without re-fetching
                 setCurrentStaff(prevStaff => prevStaff.filter(s => s._id !== staffId));
                 alert(`${staffName} has been removed.`);
@@ -76,7 +79,9 @@ const Staff = () => {
 
         if (window.confirm(`Are you sure you want to change this person's role to ${newRole}?`)) {
             try {
-                const response = await axios.patch(`http://localhost:5000/api/staff/staff/${staffId}`, { role: newRole });
+                setLoading(true);
+                const response = await axios.patch(`${API_BASE}/staff/staff/${staffId}`, { role: newRole });
+                alert(`Role updated successfully to ${newRole}!`);
                 // Update state locally for an instant UI update
                 setCurrentStaff(prevStaff => 
                     prevStaff.map(s => (s._id === staffId ? response.data : s))
@@ -84,6 +89,8 @@ const Staff = () => {
             } catch (err) {
                 setError('Failed to change role.');
                 console.error(err);
+            } finally {
+                setLoading(false);
             }
         }
     };
